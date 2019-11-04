@@ -1,0 +1,20 @@
+#ifndef DEFINITIONS_H
+#define DEFINITIONS_H
+
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 512
+
+enum KEY {
+	KEY_ENTER,
+	KEY_ESCAPE,
+	KEY_SPACE,
+	KEY_LEFT_SHIFT,
+	KEY_W,
+	KEY_A,
+	KEY_S,
+	KEY_D,
+	KEY_LEFT,
+	KEY_RIGHT,
+};
+
+#endif

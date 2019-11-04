@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{c8b1d837-9913-467a-bd3d-d5ce84bf78ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{4c80236b-2107-4ea1-a44c-c35d70f43549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Textures">
+      <UniqueIdentifier>{73e8a916-80e5-4043-af90-5c6d8aab25ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{92e20d99-9a87-40ad-8e01-5c9f03c508d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{9bf6ec48-585e-419b-98ca-3c69816473f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels">
+      <UniqueIdentifier>{aebe1bc2-c8a1-45bc-89da-8eb43900a82f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{15217924-5a72-44ce-a7a0-a51d1a2bab55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Enemy">
+      <UniqueIdentifier>{1c15f86b-260a-4b9f-8bc2-1dcd8413f94f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Block">
+      <UniqueIdentifier>{a5ca066b-80a4-4da3-82ce-868409096a26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Player">
+      <UniqueIdentifier>{70b250fb-932c-4399-95bb-ae563856485d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Projectiles">
+      <UniqueIdentifier>{abeb81f2-735a-475e-81ad-8ff4a495bc9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Projectiles\Projectile0">
+      <UniqueIdentifier>{c0c34b09-5cab-4a74-bd9a-68a1a2c3a8ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Projectiles\Projectile1">
+      <UniqueIdentifier>{bd2307bd-4ea3-4443-aeb6-f9a0761a56f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Projectiles\Projectile2">
+      <UniqueIdentifier>{b7e7ebd5-b3bd-4cda-8a69-bc7971c0d8b4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\block.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\block.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\light.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\light.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\test.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\test.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\lightblock.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\lightblock.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Levels\challenger.lvl">
+      <Filter>Levels</Filter>
+    </None>
+    <None Include="Levels\god.lvl">
+      <Filter>Levels</Filter>
+    </None>
+    <None Include="Levels\peasant.lvl">
+      <Filter>Levels</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Engine\engine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\object.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\glad.c">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\shader.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\texture.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\manager.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\scene.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\camera.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\player.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\mesh.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\block.jpg">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\container.jpg">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\wall.jpg">
+      <Filter>Textures</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\object.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\definitions.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\shader.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\texture.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\manager.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\scene.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\camera.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\player.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\mesh.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\model.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
