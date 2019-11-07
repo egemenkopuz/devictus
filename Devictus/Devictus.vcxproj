@@ -73,6 +73,10 @@
     <IncludePath>$(SolutionDir)\Externals\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Externals\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)\Externals\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\Externals\Libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -92,6 +96,9 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc141-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -125,6 +132,9 @@
     <None Include="Levels\challenger.lvl" />
     <None Include="Levels\god.lvl" />
     <None Include="Levels\peasant.lvl" />
+    <None Include="Objects\Block\block.mtl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
     <None Include="Shaders\block.frag" />
     <None Include="Shaders\block.vert" />
     <None Include="Shaders\lightblock.frag" />
@@ -149,6 +159,7 @@
     <ClCompile Include="Utilities\glad.c" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Objects\Block\block.png" />
     <Image Include="Textures\block.jpg" />
     <Image Include="Textures\container.jpg" />
     <Image Include="Textures\wall.jpg" />
@@ -166,6 +177,11 @@
     <ClInclude Include="Game\player.h" />
     <ClInclude Include="Game\scene.h" />
     <ClInclude Include="Utilities\definitions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Objects\Block\block.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

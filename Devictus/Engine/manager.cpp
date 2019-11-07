@@ -11,7 +11,7 @@
 std::map<std::string, Texture>    Manager::textures;
 std::map<std::string, Shader>       Manager::shaders;
 
-Shader Manager::loadShader(const char * vertexPath, const char * fragmentPath, std::string name)
+Shader Manager::loadShader(const char * vertexPath, const char * fragmentPath, const char * name)
 {
 	shaders[name] = loadShaderFromFile(vertexPath, fragmentPath);
 	return shaders[name];
@@ -22,7 +22,7 @@ Shader Manager::getShader(std::string name)
 	return shaders[name];
 }
 
-Texture Manager::loadTexture(const char * texturePath, std::string name, std::string type)
+Texture Manager::loadTexture(const char * texturePath, const char * name, const char * type)
 {
 	textures[name] = loadTextureFromFile(texturePath, type);
 	return textures[name];
@@ -72,12 +72,12 @@ Shader Manager::loadShaderFromFile(const char * vertexPath, const char * fragmen
 	return shader;
 }
 
-Texture Manager::loadTextureFromFile(const char * texturePath, std::string type)
+Texture Manager::loadTextureFromFile(const char * texturePath, const char * type)
 {
 	Texture texture;
 
-	int width, height, nrComponents;
-	unsigned char *data = stbi_load(texturePath, &width, &height, &nrComponents, 0);
+	int w, h, nrComponents;
+	unsigned char *data = stbi_load(texturePath, &w, &h, &nrComponents, 0);
 
 	if (data) {
 		if (nrComponents == 1)
@@ -87,7 +87,7 @@ Texture Manager::loadTextureFromFile(const char * texturePath, std::string type)
 		else if (nrComponents == 4)
 			texture.format = GL_RGBA;
 
-		texture.generate(width, height, data, type);
+		texture.generate(w, h, data, type);
 	}
 	else std::cout << "ERROR, Texture failed to load at path: " << texturePath << std::endl;
 

@@ -7,9 +7,6 @@ enum GameState { GAME_MENU, GAME_ACTIVE, GAME_WIN, GAME_LOSE, GAME_EXIT };
 
 class Game {
 public:
-	GameState state;
-	std::vector<Scene> levels;
-
 	//unsigned int width, height;
 
 	Game();
@@ -22,7 +19,6 @@ public:
 	void init();
 	void update(float deltaTime);
 	void render(float deltaTime);
-	void checkCollisions();
 
 	bool isTerminated();
 private:
@@ -30,6 +26,11 @@ private:
 	Player * player;
 	Enemy * enemy;
 
-
+	GameState state;
+	LevelDifficulty currentDiff;
+	Scene scene;
+	
 	bool terminated;
+
+	void checkCollisions();
 };

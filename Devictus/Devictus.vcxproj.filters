@@ -78,6 +78,9 @@
     <None Include="Levels\peasant.lvl">
       <Filter>Levels</Filter>
     </None>
+    <None Include="Objects\Block\block.mtl">
+      <Filter>Objects\Block</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -125,6 +128,9 @@
     <Image Include="Textures\wall.jpg">
       <Filter>Textures</Filter>
     </Image>
+    <Image Include="Objects\Block\block.png">
+      <Filter>Objects\Block</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\engine.h">
@@ -163,5 +169,10 @@
     <ClInclude Include="Engine\model.h">
       <Filter>Engine</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Objects\Block\block.obj">
+      <Filter>Objects\Block</Filter>
+    </Object>
   </ItemGroup>
 </Project>

@@ -62,6 +62,10 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
 	updateCameraVectors();
 }
 
+void Camera::ProcessMouseMovement(float xoffset, float yoffset, glm::vec3 playerPosition)
+{
+}
+
 void Camera::updateCameraVectors()
 {
 	// Calculate the new Front vector

@@ -42,6 +42,7 @@ public:
 	glm::mat4 GetViewMatrix();
 	void ProcessKeyboard(CameraMovement direction, float deltaTime);
 	void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
+	void ProcessMouseMovement(float xoffset, float yoffset, glm::vec3 playerPosition);
 private:
 	void updateCameraVectors();
 };

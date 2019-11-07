@@ -6,49 +6,44 @@
 
 #include "../Engine/texture.h"
 #include "../Engine/shader.h"
-#include "../Engine/mesh.h"
+#include "../Engine/model.h"
 
 class GameObject {
 public:
+	std::string type;
 	glm::vec3 position;
-	bool gravityApplied;
-	bool destroyed;
-	int health;
+	bool destructable;
+	bool avaliable;
 
-private:
-	std::vector<Mesh> meshes;
-	std::vector<GameObject> children;
+	Model * model;
+	~GameObject();
 
 	virtual void transform() = 0;
 };
 
 class Player : public GameObject {
 public:
-	bool casting;
+	int health;
 	int stamina;
+	bool casting;
 
-	Player();
-
-private:
-	virtual void transform();
+	Player(glm::vec3 position);
+	void transform() override;
 };
 
 class Enemy : public GameObject {
 public:
+	int health;
 	bool casting;
-	int stamina;
 
-	Enemy();
-private:
-	virtual void transform();
+	Enemy(glm::vec3 position);
+	void transform() override;
 };
 
-class Block : public GameObject {
+class Block : public GameObject {	
 public:
-
-	Block();
-private:
-	virtual void transform();
+	Block(glm::vec3 position, bool indestructable);
+	void transform() override;
 };
 
 #endif
