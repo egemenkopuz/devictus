@@ -14,7 +14,6 @@ public:
 
 	void processMouse(float x, float y);
 	void processKey(KEY key, float deltaTime);
-	void processKey(KEY key, unsigned int level);
 
 	void init();
 	void update(float deltaTime);
@@ -22,7 +21,8 @@ public:
 
 	bool isTerminated();
 private:
-	Camera * camera;
+	Camera * sceneCamera;
+	Camera * uiCamera;
 	Player * player;
 	Enemy * enemy;
 

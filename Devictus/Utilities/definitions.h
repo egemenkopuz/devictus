@@ -1,6 +1,8 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
+#define DEBUG 
+
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 512
 

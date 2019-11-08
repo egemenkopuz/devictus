@@ -22,6 +22,8 @@ Scene::~Scene()
 
 void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 {
+	this->blockModel = new Model("./Objects/Block/block.obj");
+
 	this->player = new Player(glm::vec3(0.0f, 1.5f, -7.0f));
 	this->enemy = new Enemy(glm::vec3(0.0f, 1.5f, 0.0f));
 	
@@ -38,8 +40,8 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 		delete iter;
 	sceneGraph.clear();
 
-	unsigned int areanaSize0 = levelInfo.level0.size();
-	unsigned int center0 = floor(areanaSize0 / 2);
+	unsigned int arenaSize0 = levelInfo.level0.size();
+	unsigned int center0 = floor(arenaSize0 / 2);
 
 	unsigned int arenaSize1 = levelInfo.level1.size();
 	unsigned int center1 = floor(arenaSize1 / 2);
@@ -48,8 +50,9 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 
 	// level0
 
-	for (int m = 0; m < areanaSize0; m++) {
-		for (int n = 0; n < areanaSize0; n++) {
+	int count = 0;
+	for (int m = 0; m < arenaSize0; m++) {
+		for (int n = 0; n < arenaSize0; n++) {
 			int xCoord = (m - center1) * blockLength;
 			int zCoord = (n - center1) * blockLength;
 
@@ -58,7 +61,8 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 			if (height != 0) {
 				for (int k = 0; k < height; k++) {
 					int yCoord = -(k * blockLength);
-					sceneGraph.push_back(new Block(glm::vec3((float)xCoord, (float)yCoord, (float)zCoord), destructable));
+					count++;
+					sceneGraph.push_back(new Block(glm::vec3((float)xCoord, (float)yCoord, (float)zCoord), blockModel, destructable));
 				}
 			}
 		}
@@ -66,15 +70,16 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 
 	// level1
 
-	for (int m = 0; m < areanaSize0; m++) {
-		for (int n = 0; n < areanaSize0; n++) {
+	for (int m = 0; m < arenaSize1; m++) {
+		for (int n = 0; n < arenaSize1; n++) {
 			int xCoord = (m - center1) * blockLength;
 			int zCoord = (n - center1) * blockLength;
-			int height = levelInfo.level0[m][n];
+			int height = levelInfo.level1[m][n];
 			if (height != 0) {
 				for (int k = 0; k < height; k++) {
 					int yCoord = (k * blockLength) + 1;
-					sceneGraph.push_back(new Block(glm::vec3((float)xCoord, (float)yCoord, (float)zCoord), destructable));
+					count++;
+					sceneGraph.push_back(new Block(glm::vec3((float)xCoord, (float)yCoord, (float)zCoord), blockModel, destructable));
 				}
 			}
 		}
@@ -84,13 +89,17 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 void Scene::draw()
 {
 	for (auto iter : sceneGraph) {
-		if (iter->avaliable) {
-			iter->model->Draw(Manager::getShader(iter->type));
+		if (iter->available) {
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, iter->position);
+			Shader shader = Manager::getShader(iter->type);
+			shader.setMat4("model", model);
+			iter->model->Draw(shader);
 		}
 	}
 
-	player->model->Draw(Manager::getShader(player->type));
-	enemy->model->Draw(Manager::getShader(enemy->type));
+	//player->model->Draw(Manager::getShader(player->type));
+	//enemy->model->Draw(Manager::getShader(enemy->type));
 }
 
 LevelInfo Scene::readLevelFromFile(const char * levelPath)

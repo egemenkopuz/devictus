@@ -13,7 +13,7 @@ public:
 	std::string type;
 	glm::vec3 position;
 	bool destructable;
-	bool avaliable;
+	bool available;
 
 	Model * model;
 	~GameObject();
@@ -42,7 +42,7 @@ public:
 
 class Block : public GameObject {	
 public:
-	Block(glm::vec3 position, bool indestructable);
+	Block(glm::vec3 position, Model * model, bool indestructable);
 	void transform() override;
 };
 

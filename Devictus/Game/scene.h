@@ -24,13 +24,13 @@ public:
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
 	void draw();
 
-private:
-	LevelDifficulty levelDifficulty;
-
 	Camera * sceneCamera;
 	Camera * uiCamera;
 	Player * player;
 	Enemy * enemy;
+private:
+	Model * blockModel;
+	LevelDifficulty levelDifficulty;
 
 	std::vector<GameObject*> sceneGraph;
 

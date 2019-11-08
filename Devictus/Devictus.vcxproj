@@ -134,6 +134,7 @@
     <None Include="Levels\peasant.lvl" />
     <None Include="Objects\Block\block.mtl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="Shaders\block.frag" />
     <None Include="Shaders\block.vert" />
@@ -159,7 +160,9 @@
     <ClCompile Include="Utilities\glad.c" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Objects\Block\block.png" />
+    <Image Include="Objects\Block\block.png">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Image>
     <Image Include="Textures\block.jpg" />
     <Image Include="Textures\container.jpg" />
     <Image Include="Textures\wall.jpg" />
@@ -181,6 +184,7 @@
   <ItemGroup>
     <Object Include="Objects\Block\block.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

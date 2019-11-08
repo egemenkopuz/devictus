@@ -28,6 +28,7 @@ private:
 	static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 	static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
 	static void keysCallback(GLFWwindow *window);
+	static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 	static void mouseKeysCallback(GLFWwindow* window, int button, int action, int mods);
 };
 

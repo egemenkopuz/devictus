@@ -30,6 +30,7 @@ bool Engine::init()
 	glfwSetFramebufferSizeCallback(window, Engine::framebufferSizeCallback);
 	glfwSetCursorPosCallback(window, Engine::mouseMoveCallback);
 	glfwSetMouseButtonCallback(window, Engine::mouseKeysCallback);
+	glfwSetKeyCallback(window, Engine::keyCallback);
 	
 	//glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 
@@ -65,8 +66,6 @@ void Engine::start(Game * game)
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - timeFramePast;
 		timeFramePast = currentFrame;
-
-		Engine::keysCallback(this->window);
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -106,29 +105,30 @@ void Engine::mouseMoveCallback(GLFWwindow * window, double xpos, double ypos)
 	engine->game->processMouse(xoffset, yoffset);
 }
 
-void Engine::keysCallback(GLFWwindow * window)
+void Engine::keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
+#ifdef DEBUG
+	std::cout << "KEY_CALL_BACK:" << key << std::endl;
+#endif 
 	Engine *engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		engine->game->processKey(KEY_ESCAPE, engine->deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-		engine->game->processKey(KEY_ENTER, engine->deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		engine->game->processKey(KEY_W, engine->deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		engine->game->processKey(KEY_S, engine->deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		engine->game->processKey(KEY_A, engine->deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		engine->game->processKey(KEY_D, engine->deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		engine->game->processKey(KEY_SPACE, engine->deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		engine->game->processKey(KEY_LEFT_SHIFT, engine->deltaTime);
+	if (true ||action != GLFW_RELEASE) {       // avoid double updates
+		switch (key) {
+		case GLFW_KEY_1: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
+		case GLFW_KEY_2: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
+
+		case GLFW_KEY_W: engine->game->processKey(KEY_W, engine->deltaTime); break;
+		case GLFW_KEY_S: engine->game->processKey(KEY_S, engine->deltaTime); break;
+
+		case GLFW_KEY_A: engine->game->processKey(KEY_A, engine->deltaTime); break;
+		case GLFW_KEY_D: engine->game->processKey(KEY_D, engine->deltaTime); break;
+
+		case GLFW_KEY_SPACE: engine->game->processKey(KEY_SPACE, engine->deltaTime); break;
+		case GLFW_KEY_LEFT_SHIFT: engine->game->processKey(KEY_LEFT_SHIFT, engine->deltaTime); break;
+
+		case GLFW_KEY_ESCAPE: engine->game->processKey(KEY_ESCAPE, engine->deltaTime); break;
+		case GLFW_KEY_ENTER: engine->game->processKey(KEY_ENTER, engine->deltaTime); break;
+		}
+	}
 }
 
 void Engine::mouseKeysCallback(GLFWwindow * window, int button, int action, int mods)
