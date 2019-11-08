@@ -136,14 +136,17 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="Objects\Player\Earth_Golem_OBJ.mtl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
     <None Include="Shaders\block.frag" />
     <None Include="Shaders\block.vert" />
     <None Include="Shaders\lightblock.frag" />
     <None Include="Shaders\lightblock.vert" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
-    <None Include="Shaders\test.frag" />
-    <None Include="Shaders\test.vert" />
+    <None Include="Shaders\text.frag" />
+    <None Include="Shaders\text.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\engine.cpp" />
@@ -162,6 +165,10 @@
   <ItemGroup>
     <Image Include="Objects\Block\block.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Image>
+    <Image Include="Objects\Player\EarthGolem_albedo.jpeg">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Image>
     <Image Include="Textures\block.jpg" />
     <Image Include="Textures\container.jpg" />
@@ -185,6 +192,9 @@
     <Object Include="Objects\Block\block.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="Objects\Player\Earth_Golem_OBJ.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

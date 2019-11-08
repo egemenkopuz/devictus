@@ -47,7 +47,6 @@ void Game::processKey(KEY key, float deltaTime)
 				scene.init(currentDiff, "./Levels/god.lvl");
 			}
 			sceneCamera = scene.sceneCamera;
-			uiCamera = scene.uiCamera;
 			player = scene.player;
 			enemy = scene.enemy;
 
@@ -125,19 +124,19 @@ void Game::init()
 	Shader blockShader = Manager::getShader("block");
 	blockShader.use();
 	blockShader.setFloat("material.shininess", 32.0f);
-	blockShader.setFloat("material.diffuse", 0.5f);
+	blockShader.setFloat("material.diffuse", 1.0f);
 	blockShader.setFloat("material.specular", 1.0f);
 
 	// directional light
-	blockShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-	blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-	blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-	blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+	//blockShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+	//blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+	//blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+	//blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 	// point light 1
-	blockShader.setVec3("pointLights[0].position", glm::vec3(0.0f, 5.0f, 0.0f));
+	blockShader.setVec3("pointLights[0].position", glm::vec3(0.0f, 3.0f, 0.0f));
 	blockShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
 	blockShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-	blockShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+	blockShader.setVec3("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
 	blockShader.setFloat("pointLights[0].constant", 1.0f);
 	blockShader.setFloat("pointLights[0].linear", 0.09);
 	blockShader.setFloat("pointLights[0].quadratic", 0.032);

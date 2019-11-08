@@ -27,7 +27,7 @@ public:
 	int stamina;
 	bool casting;
 
-	Player(glm::vec3 position);
+	Player(glm::vec3 position, Model * model);
 	void transform() override;
 };
 
@@ -36,7 +36,7 @@ public:
 	int health;
 	bool casting;
 
-	Enemy(glm::vec3 position);
+	Enemy(glm::vec3 position, Model * model);
 	void transform() override;
 };
 

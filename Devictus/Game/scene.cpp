@@ -12,7 +12,6 @@ Scene::Scene()
 Scene::~Scene()
 {
 	delete this->sceneCamera;
-	delete this->uiCamera;
 	delete this->player;
 	delete this->enemy;
 
@@ -23,11 +22,7 @@ Scene::~Scene()
 void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 {
 	this->blockModel = new Model("./Objects/Block/block.obj");
-
-	this->player = new Player(glm::vec3(0.0f, 1.5f, -7.0f));
-	this->enemy = new Enemy(glm::vec3(0.0f, 1.5f, 0.0f));
-	
-	this->sceneCamera = new Camera(glm::vec3(0.0f, 2.5f, -8.0f));
+	this->playerModel = new Model("./Objects/Player/Earth_Golem_OBJ.obj");
 
 	LevelInfo levelInfo = readLevelFromFile(levelPath);
 	this->levelDifficulty = levelDifficulty;
@@ -46,23 +41,19 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 	unsigned int arenaSize1 = levelInfo.level1.size();
 	unsigned int center1 = floor(arenaSize1 / 2);
 
-	int blockLength = 1;
+	blockLength = levelInfo.blockLength;
 
 	// level0
-
-	int count = 0;
+	
 	for (int m = 0; m < arenaSize0; m++) {
 		for (int n = 0; n < arenaSize0; n++) {
-			int xCoord = (m - center1) * blockLength;
-			int zCoord = (n - center1) * blockLength;
-
-			float test = (float)(m - center1);
+			float xCoord = ((float)m - (float)center0) * blockLength;
+			float zCoord = ((float)n - (float)center0) * blockLength;
 			int height = levelInfo.level0[m][n];
 			if (height != 0) {
 				for (int k = 0; k < height; k++) {
-					int yCoord = -(k * blockLength);
-					count++;
-					sceneGraph.push_back(new Block(glm::vec3((float)xCoord, (float)yCoord, (float)zCoord), blockModel, destructable));
+					float yCoord = -((float)k * blockLength);
+					sceneGraph.push_back(new Block(glm::vec3(xCoord, yCoord, zCoord), blockModel, destructable));
 				}
 			}
 		}
@@ -72,18 +63,22 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 
 	for (int m = 0; m < arenaSize1; m++) {
 		for (int n = 0; n < arenaSize1; n++) {
-			int xCoord = (m - center1) * blockLength;
-			int zCoord = (n - center1) * blockLength;
+			float xCoord = ((float)m - (float)center1) * blockLength;
+			float zCoord = ((float)n - (float)center1) * blockLength;
 			int height = levelInfo.level1[m][n];
 			if (height != 0) {
 				for (int k = 0; k < height; k++) {
-					int yCoord = (k * blockLength) + 1;
-					count++;
-					sceneGraph.push_back(new Block(glm::vec3((float)xCoord, (float)yCoord, (float)zCoord), blockModel, destructable));
+					float yCoord = ((float)k * blockLength) + blockLength;
+					sceneGraph.push_back(new Block(glm::vec3(xCoord, yCoord, zCoord), blockModel, destructable));
 				}
 			}
 		}
 	}
+
+	this->enemy = new Enemy(glm::vec3(0.0f, 0.5f * blockLength, 0.0f), playerModel);
+	this->player = new Player(glm::vec3(0.0f, 0.5f * blockLength, 4.0f * blockLength), blockModel);
+
+	this->sceneCamera = new Camera(glm::vec3(0.0f, 2.0f * blockLength, 5.0f * blockLength));
 }
 
 void Scene::draw()
@@ -92,14 +87,24 @@ void Scene::draw()
 		if (iter->available) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, iter->position);
+			model = glm::scale(model, glm::vec3(blockLength));
 			Shader shader = Manager::getShader(iter->type);
 			shader.setMat4("model", model);
 			iter->model->Draw(shader);
 		}
 	}
+	Shader shader = Manager::getShader(player->type);
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, player->position);
+	shader.setMat4("model", model);
+	player->model->Draw(shader);
 
-	//player->model->Draw(Manager::getShader(player->type));
-	//enemy->model->Draw(Manager::getShader(enemy->type));
+	shader = Manager::getShader(enemy->type);
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, enemy->position);
+	model = glm::scale(model, glm::vec3(0.2f));
+	shader.setMat4("model", model);
+	enemy->model->Draw(shader);
 }
 
 LevelInfo Scene::readLevelFromFile(const char * levelPath)
@@ -113,6 +118,9 @@ LevelInfo Scene::readLevelFromFile(const char * levelPath)
 
 		unsigned int col;
 		unsigned int row;
+
+		std::getline(file, str);	// reads block length
+		float blockLength = std::atof(str.c_str());
 
 		std::getline(file, str);	// reads the level0 size
 		int levelSize0 = std::stoi(str);
@@ -151,6 +159,7 @@ LevelInfo Scene::readLevelFromFile(const char * levelPath)
 
 		info.level0 = level0;
 		info.level1 = level1;
+		info.blockLength = blockLength;
 	}
 	catch (std::exception e) {
 		std::cout << "ERROR, Level failed to load at path: " << levelPath << std::endl;

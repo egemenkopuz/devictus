@@ -14,6 +14,7 @@ enum LevelDifficulty { PEASANT, CHALLENGER, GOD };
 struct LevelInfo {
 	std::vector<std::vector<char>> level1;
 	std::vector<std::vector<char>> level0;
+	float blockLength;
 };
 
 class Scene {
@@ -25,11 +26,15 @@ public:
 	void draw();
 
 	Camera * sceneCamera;
-	Camera * uiCamera;
 	Player * player;
 	Enemy * enemy;
+
 private:
 	Model * blockModel;
+	Model * playerModel;
+	Model * enemyModel;
+
+	float blockLength;
 	LevelDifficulty levelDifficulty;
 
 	std::vector<GameObject*> sceneGraph;

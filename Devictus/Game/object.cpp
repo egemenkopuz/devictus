@@ -6,8 +6,7 @@ GameObject::~GameObject()
 }
 
 
-Player::Player(glm::vec3 position) {
-	//this->type = "player";
+Player::Player(glm::vec3 position, Model * model) {
 	this->type = "block";
 
 	this->position = position;
@@ -15,18 +14,14 @@ Player::Player(glm::vec3 position) {
 	this->casting = false;
 	this->destructable = true;
 	this->available = true;
-
-	// model load player object
-	//this->model = new Model("./Objects/Player/player.obj");
-	this->model = new Model("./Objects/Block/block.obj");
+	this->model = model;
 }
 
 void Player::transform() {
 
 }
 
-Enemy::Enemy(glm::vec3 position) {
-	//this->type = "enemy";
+Enemy::Enemy(glm::vec3 position, Model * model) {
 	this->type = "block";
 
 	this->position = position;
@@ -34,10 +29,7 @@ Enemy::Enemy(glm::vec3 position) {
 	this->casting = false;
 	this->destructable = true;
 	this->available = true;
-
-	// model load enemy object
-	//this->model = new Model("./Objects/Enemy/enemy.obj");
-	this->model = new Model("./Objects/Block/block.obj");
+	this->model = model;
 }
 
 void Enemy::transform() {
@@ -49,7 +41,6 @@ Block::Block(glm::vec3 position,Model * model, bool destructable) {
 	this->position = position;
 	this->destructable = destructable;
 	this->available = true;
-
 	this->model = model;
 }
 void Block::transform() {
