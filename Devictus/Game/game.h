@@ -1,5 +1,10 @@
 #include "../Utilities/definitions.h"
 #include "../Engine/manager.h"
+#include "../Engine/text.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "scene.h"
 
@@ -7,7 +12,8 @@ enum GameState { GAME_MENU, GAME_ACTIVE, GAME_WIN, GAME_LOSE, GAME_EXIT };
 
 class Game {
 public:
-	//unsigned int width, height;
+	float gameWidth, gameHeight;
+	float aspecRatio;
 
 	Game();
 	~Game();
@@ -29,8 +35,14 @@ private:
 	GameState state;
 	LevelDifficulty currentDiff;
 	Scene scene;
+
+	TextRenderer * textRenderer;
 	
+	float menuSelectionBarrierVal;
+	bool menuSelectionBarrier;
 	bool terminated;
+
+	float FPS;
 
 	void checkCollisions();
 };

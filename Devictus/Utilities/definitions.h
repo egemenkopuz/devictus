@@ -2,9 +2,11 @@
 #define DEFINITIONS_H
 
 #define DEBUG 
+#define FPS_LIMIT
 
-#define WINDOW_WIDTH 1024
-#define WINDOW_HEIGHT 512
+
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 enum KEY {
 	KEY_ENTER,

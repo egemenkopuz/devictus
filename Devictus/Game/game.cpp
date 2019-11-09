@@ -5,11 +5,20 @@ Game::Game()
 	this->terminated = false;
 	this->currentDiff = PEASANT;
 	this->state = GAME_MENU;
+	this->menuSelectionBarrierVal = 0.0f;
+	this->menuSelectionBarrier = true;
+	this->gameWidth = (float)WINDOW_WIDTH;
+	this->gameHeight = (float)WINDOW_HEIGHT;
+	this->aspecRatio = this->gameWidth / this->gameHeight;
 }
 
 Game::~Game()
 {
-
+	delete textRenderer;
+	delete sceneCamera;
+	delete uiCamera;
+	delete player;
+	delete enemy;
 }
 
 void Game::processMouse(float x, float y)
@@ -52,41 +61,47 @@ void Game::processKey(KEY key, float deltaTime)
 
 			state = GAME_ACTIVE;
 		}
-		else if (key == KEY_W) {
-			if (currentDiff == CHALLENGER) {
+		else if (menuSelectionBarrier) {
+			if (key == KEY_W) {
+				if (currentDiff == CHALLENGER) {
 #ifdef DEBUG
-				std::cout << "GAME_MENU:PRESSED:KEY_W, Selected PEASANT level difficulty" << std::endl;
+					std::cout << "SELECTED LEVEL IS PEASANT" << std::endl;
 #endif 
-				currentDiff = PEASANT;
+					currentDiff = PEASANT;
+				}
+				else if (currentDiff == GOD) {
+#ifdef DEBUG
+					std::cout << "SELECTED LEVEL IS CHALLENGER" << std::endl;
+#endif 
+					currentDiff = CHALLENGER;
+				}
+				menuSelectionBarrier = false;
+				menuSelectionBarrierVal = 15.0f * deltaTime;
 			}
-			else if (currentDiff == GOD) {
+			else if (key == KEY_S) {
+				if (currentDiff == PEASANT) {
 #ifdef DEBUG
-				std::cout << "GAME_MENU:PRESSED:KEY_W, Selected CHALLENGER level difficulty" << std::endl;
+					std::cout << "SELECTED LEVEL IS CHALLENGER" << std::endl;
 #endif 
-				currentDiff = CHALLENGER;
-			}
-		}
-		else if (key == KEY_S) {
-			if (currentDiff == PEASANT) {
+					currentDiff = CHALLENGER;
+				}
+				else if (currentDiff == CHALLENGER) {
 #ifdef DEBUG
-				std::cout << "GAME_MENU:PRESSED:KEY_S, Selected CHALLENGER level difficulty" << std::endl;
+					std::cout << "SELECTED LEVEL IS GOD" << std::endl;
 #endif 
-				currentDiff = CHALLENGER;
-			}
-			else if (currentDiff == CHALLENGER) {
-#ifdef DEBUG
-				std::cout << "GAME_MENU:PRESSED:KEY_S, Selected GOD level difficulty" << std::endl;
-#endif 
-				currentDiff = GOD;
+					currentDiff = GOD;
+				}
+				menuSelectionBarrier = false;
+				menuSelectionBarrierVal = 15.0f * deltaTime;
 			}
 		}
 	}
 	else if (state == GAME_ACTIVE) {
-		if (key == KEY_ESCAPE) 
+		if (key == KEY_ESCAPE)
 			state = GAME_MENU;
 		else if (key == KEY_W)
 			sceneCamera->ProcessKeyboard(FORWARD, deltaTime);
-		else if (key == KEY_A) 
+		else if (key == KEY_A)
 			sceneCamera->ProcessKeyboard(LEFT, deltaTime);
 		else if (key == KEY_S)
 			sceneCamera->ProcessKeyboard(BACKWARD, deltaTime);
@@ -96,9 +111,9 @@ void Game::processKey(KEY key, float deltaTime)
 
 		else if (key == KEY_RIGHT);
 
-		else if (key == KEY_SPACE) 
+		else if (key == KEY_SPACE)
 			sceneCamera->ProcessKeyboard(UP, deltaTime);
-		else if (key == KEY_LEFT_SHIFT) 
+		else if (key == KEY_LEFT_SHIFT)
 			sceneCamera->ProcessKeyboard(DOWN, deltaTime);
 
 	}
@@ -120,6 +135,7 @@ void Game::init()
 	std::cout << "GAME:INITILIZATION" << std::endl;
 	Manager::loadShader("./Shaders/block.vert", "./Shaders/block.frag", "block");
 	Manager::loadShader("./Shaders/lightblock.vert", "./Shaders/lightblock.frag", "lightblock");
+	Manager::loadShader("./Shaders/text.vert", "./Shaders/text.frag", "text");
 
 	Shader blockShader = Manager::getShader("block");
 	blockShader.use();
@@ -132,6 +148,7 @@ void Game::init()
 	//blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
 	//blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
 	//blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
 	// point light 1
 	blockShader.setVec3("pointLights[0].position", glm::vec3(0.0f, 3.0f, 0.0f));
 	blockShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
@@ -141,21 +158,33 @@ void Game::init()
 	blockShader.setFloat("pointLights[0].linear", 0.09);
 	blockShader.setFloat("pointLights[0].quadratic", 0.032);
 
+	Shader textShader = Manager::getShader("text");
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT));
+	textShader.use();
+	glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	
+	textRenderer = new TextRenderer("text");
+
 	this->state = GAME_MENU;
 }
 
 void Game::update(float deltaTime)
 {
 	if (this->state == GAME_MENU) {
+		if (menuSelectionBarrier == false && deltaTime < menuSelectionBarrierVal) {
+			menuSelectionBarrierVal -= deltaTime;
+		}
+		else {
+			menuSelectionBarrier = true;
+		}
+	}
+	else if (this->state == GAME_ACTIVE) {
 
 	}
-	if (this->state == GAME_ACTIVE) {
+	else if (this->state == GAME_WIN) {
 
 	}
-	if (this->state == GAME_WIN) {
-
-	}
-	if (this->state == GAME_LOSE) {
+	else if (this->state == GAME_LOSE) {
 
 	}
 }
@@ -164,9 +193,18 @@ void Game::render(float deltaTime)
 {
 	if (this->state == GAME_MENU) {
 
+		textRenderer->renderText("DEVICTUS", 650.f, 800.f, 2.0f, glm::vec3(1.0, 0.0f, 0.0f));
 
+		textRenderer->renderText("Choose Difficulty", 800.f,gameHeight / 2.5f, 0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
+		if (currentDiff == PEASANT)
+			textRenderer->renderText("Peasant", 900.f, gameHeight / 3.f, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+		else if (currentDiff == CHALLENGER)
+			textRenderer->renderText("Challenger", 870.f, gameHeight / 3.f, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+		else 
+			textRenderer->renderText("GOD", 930.f, gameHeight / 3.f, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
+		
 	}
-	if (this->state == GAME_ACTIVE) {
+	else if (this->state == GAME_ACTIVE) {
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(sceneCamera->Zoom), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = sceneCamera->GetViewMatrix();
@@ -181,12 +219,16 @@ void Game::render(float deltaTime)
 		glm::mat4 model = glm::mat4(1.0f);
 		blockShader.setMat4("model", model);
 		this->scene.draw();
+
+		textRenderer->renderText("Mephisto", 870.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f));
+		textRenderer->renderText("FPS:" + std::to_string((int)ceil(1.0f / deltaTime)), 15.f, 1050.f, 0.35f, glm::vec3(1.0, 0.0f, 0.0f));
+
 	}
-	if (this->state == GAME_WIN) {
+	else if (this->state == GAME_WIN) {
 
 
 	}
-	if (this->state == GAME_LOSE) {
+	else if (this->state == GAME_LOSE) {
 
 	}
 }

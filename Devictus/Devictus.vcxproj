@@ -86,7 +86,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc141-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc141-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -136,7 +136,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="Objects\Player\Earth_Golem_OBJ.mtl">
+    <None Include="Objects\Enemy\Earth_Golem_OBJ.mtl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
     <None Include="Shaders\block.frag" />
@@ -153,11 +153,11 @@
     <ClCompile Include="Engine\manager.cpp" />
     <ClCompile Include="Engine\mesh.cpp" />
     <ClCompile Include="Engine\shader.cpp" />
+    <ClCompile Include="Engine\text.cpp" />
     <ClCompile Include="Engine\texture.cpp" />
     <ClCompile Include="Game\camera.cpp" />
     <ClCompile Include="Game\game.cpp" />
     <ClCompile Include="Game\object.cpp" />
-    <ClCompile Include="Game\player.cpp" />
     <ClCompile Include="Game\scene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utilities\glad.c" />
@@ -167,7 +167,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Image>
-    <Image Include="Objects\Player\EarthGolem_albedo.jpeg">
+    <Image Include="Objects\Enemy\EarthGolem_albedo.jpeg">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Image>
     <Image Include="Textures\block.jpg" />
@@ -180,11 +180,11 @@
     <ClInclude Include="Engine\mesh.h" />
     <ClInclude Include="Engine\model.h" />
     <ClInclude Include="Engine\shader.h" />
+    <ClInclude Include="Engine\text.h" />
     <ClInclude Include="Engine\texture.h" />
     <ClInclude Include="Game\camera.h" />
     <ClInclude Include="Game\game.h" />
     <ClInclude Include="Game\object.h" />
-    <ClInclude Include="Game\player.h" />
     <ClInclude Include="Game\scene.h" />
     <ClInclude Include="Utilities\definitions.h" />
   </ItemGroup>
@@ -193,7 +193,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Object>
-    <Object Include="Objects\Player\Earth_Golem_OBJ.obj">
+    <Object Include="Objects\Enemy\Earth_Golem_OBJ.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Object>
   </ItemGroup>

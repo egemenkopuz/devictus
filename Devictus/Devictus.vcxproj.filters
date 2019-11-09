@@ -81,8 +81,8 @@
     <None Include="Shaders\text.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Objects\Player\Earth_Golem_OBJ.mtl">
-      <Filter>Objects\Player</Filter>
+    <None Include="Objects\Enemy\Earth_Golem_OBJ.mtl">
+      <Filter>Objects\Enemy</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -114,10 +114,10 @@
     <ClCompile Include="Game\camera.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\player.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\mesh.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\text.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,8 +134,8 @@
     <Image Include="Objects\Block\block.png">
       <Filter>Objects\Block</Filter>
     </Image>
-    <Image Include="Objects\Player\EarthGolem_albedo.jpeg">
-      <Filter>Objects\Player</Filter>
+    <Image Include="Objects\Enemy\EarthGolem_albedo.jpeg">
+      <Filter>Objects\Enemy</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -166,13 +166,13 @@
     <ClInclude Include="Game\camera.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\player.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\mesh.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Engine\model.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\text.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
@@ -180,8 +180,8 @@
     <Object Include="Objects\Block\block.obj">
       <Filter>Objects\Block</Filter>
     </Object>
-    <Object Include="Objects\Player\Earth_Golem_OBJ.obj">
-      <Filter>Objects\Player</Filter>
+    <Object Include="Objects\Enemy\Earth_Golem_OBJ.obj">
+      <Filter>Objects\Enemy</Filter>
     </Object>
   </ItemGroup>
 </Project>

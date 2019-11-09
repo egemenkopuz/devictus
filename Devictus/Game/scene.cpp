@@ -22,7 +22,8 @@ Scene::~Scene()
 void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 {
 	this->blockModel = new Model("./Objects/Block/block.obj");
-	this->playerModel = new Model("./Objects/Player/Earth_Golem_OBJ.obj");
+	this->enemyModel = new Model("./Objects/Enemy/Earth_Golem_OBJ.obj");
+	this->playerModel = new Model("./Objects/Block/block.obj");
 
 	LevelInfo levelInfo = readLevelFromFile(levelPath);
 	this->levelDifficulty = levelDifficulty;
@@ -75,8 +76,8 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 		}
 	}
 
-	this->enemy = new Enemy(glm::vec3(0.0f, 0.5f * blockLength, 0.0f), playerModel);
-	this->player = new Player(glm::vec3(0.0f, 0.5f * blockLength, 4.0f * blockLength), blockModel);
+	this->enemy = new Enemy(glm::vec3(0.0f, 0.5f * blockLength, 0.0f), enemyModel);
+	this->player = new Player(glm::vec3(0.0f, 1.0f * blockLength, 4.0f * blockLength), playerModel);
 
 	this->sceneCamera = new Camera(glm::vec3(0.0f, 2.0f * blockLength, 5.0f * blockLength));
 }
@@ -96,6 +97,7 @@ void Scene::draw()
 	Shader shader = Manager::getShader(player->type);
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, player->position);
+	model = glm::scale(model, glm::vec3(0.5f));
 	shader.setMat4("model", model);
 	player->model->Draw(shader);
 

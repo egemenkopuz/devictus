@@ -51,8 +51,8 @@ bool Engine::init()
 	glEnable(GL_CULL_FACE);	// optional
 	glCullFace(GL_BACK);	// sub-optional
 
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glfwSetWindowUserPointer(window, this);
 
@@ -66,7 +66,9 @@ void Engine::start(Game * game)
 	{
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - timeFramePast;
+#ifdef FPS_LIMIT
 		if (!(deltaTime >= maxPeriod)) continue;	// limiting to max fps
+#endif
 		timeFramePast = currentFrame;
 
 		keyAction();
