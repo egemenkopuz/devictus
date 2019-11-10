@@ -9,7 +9,7 @@
 #include "../Game/game.h"
 #include "../Utilities/definitions.h"
 
-const float maxFPS = 60.f;
+const float maxFPS = (float)FPS_LIMIT;
 const float maxPeriod = 1.0f / maxFPS;
 
 class Engine {

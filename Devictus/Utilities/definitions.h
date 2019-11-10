@@ -2,7 +2,7 @@
 #define DEFINITIONS_H
 
 #define DEBUG 
-#define FPS_LIMIT
+#define FPS_LIMIT 60
 
 
 #define WINDOW_WIDTH 1920
