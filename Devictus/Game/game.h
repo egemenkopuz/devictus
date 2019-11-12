@@ -37,7 +37,8 @@ private:
 	Scene scene;
 
 	TextRenderer * textRenderer;
-	
+	bool movementKeys[NUM_MOVE_KEYS];
+
 	float menuSelectionBarrierVal;
 	bool menuSelectionBarrier;
 	bool terminated;

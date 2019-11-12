@@ -63,36 +63,44 @@ void Game::processKey(KEY key, float deltaTime)
 		menuSelectionBarrierVal = 15.0f * deltaTime;
 	}
 	else if (state == GAME_ACTIVE) {
-		switch (key) {
-		case KEY_ESCAPE:
+		if (key == KEY_ESCAPE) {
 			terminated = true;
-			break;
-		case KEY_SPACE:
+		}
+
+		if (key == KEY_SPACE) {
 			sceneCamera->ProcessKeyboard(UP, deltaTime);
-			break;
-		case KEY_LEFT_SHIFT:
+			movementKeys[MOVE_UP] = true;
+		}
+
+		if (key == KEY_LEFT_SHIFT) {
 			sceneCamera->ProcessKeyboard(DOWN, deltaTime);
-			break;
-		case KEY_W:
+		}
+
+		if (key == KEY_W) {
 			sceneCamera->ProcessKeyboard(FORWARD, deltaTime);
-			break;
-		case KEY_A:
+			movementKeys[MOVE_FORWARD] = true;
+		}
+
+		if (key == KEY_A) {
 			sceneCamera->ProcessKeyboard(LEFT, deltaTime);
-			break;
-		case KEY_S:
+			movementKeys[MOVE_LEFT] = true;
+		}
+		
+		if (key == KEY_S) {
 			sceneCamera->ProcessKeyboard(BACKWARD, deltaTime);
-			break;
-		case KEY_D:
+			movementKeys[MOVE_BACKWARD] = true;
+		}
+		
+		if (key == KEY_D) {
 			sceneCamera->ProcessKeyboard(RIGHT, deltaTime);
-			break;
-		case KEY_LEFT:
+			movementKeys[MOVE_RIGHT] = true;
+		}
+			
+		if (key == KEY_LEFT) {
 			// light attack
-			break;
-		case KEY_RIGHT:
+		}
+		if (key == KEY_RIGHT) {
 			// heavy attack
-			break;
-		default:
-			break;
 		}
 	}
 	else if (key == KEY_ESCAPE || key == KEY_ENTER) terminated = true;
@@ -146,9 +154,11 @@ void Game::update(float deltaTime)
 		else menuSelectionBarrier = true;
 		break;
 	case GAME_ACTIVE:
+		player->move(movementKeys, deltaTime);
+		for (int b = 0; b < NUM_MOVE_KEYS; b++) movementKeys[b] = false;
+
 
 		break;
-
 	case GAME_WIN:
 
 		break;
@@ -186,8 +196,8 @@ void Game::render(float deltaTime)
 		blockShader.setMat4("view", view);
 
 		// World transformation
-		glm::mat4 model = glm::mat4(1.0f);
-		blockShader.setMat4("model", model);
+		//glm::mat4 model = glm::mat4(1.0f);
+		//blockShader.setMat4("model", model);
 
 		// Rendering the objects
 		this->scene.draw();
