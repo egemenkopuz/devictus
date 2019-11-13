@@ -27,8 +27,8 @@ public:
 
 	bool isTerminated();
 private:
-	Camera * sceneCamera;
-	Camera * uiCamera;
+	Camera * freeCamera;
+	Camera3rdPerson * playerCamera;
 	Player * player;
 	Enemy * enemy;
 
@@ -42,6 +42,7 @@ private:
 	float menuSelectionBarrierVal;
 	bool menuSelectionBarrier;
 	bool terminated;
+	bool paused = false;
 
 	float FPS;
 

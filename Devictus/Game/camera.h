@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include "object.h"
+
 enum CameraMovement {FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN, NONE};
 
 // Default camera values
@@ -43,6 +45,24 @@ public:
 	void ProcessMouseMovement(float xoffset, float yoffset, glm::vec3 playerPosition);
 private:
 	void updateCameraVectors();
+};
+
+
+class Camera3rdPerson {
+private:
+	glm::vec3 position;
+
+	Player * player = nullptr;
+	float distanceFromPlayer = 10.f;
+
+	float yaw;		// x circle direction
+	float pitch;	// y circle direction
+	float roll;		// z circle direction
+public:
+	Camera3rdPerson(Player * player);
+	void processMovement();
+	void processMouse(float offset);
+	glm::mat4 getViewMatrix();
 };
 
 #endif

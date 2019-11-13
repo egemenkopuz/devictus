@@ -25,7 +25,8 @@ public:
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
 	void draw();
 
-	Camera * sceneCamera;
+	Camera * freeCamera;
+	Camera3rdPerson * playerCamera;
 	Player * player;
 	Enemy * enemy;
 

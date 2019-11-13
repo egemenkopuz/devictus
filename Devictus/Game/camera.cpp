@@ -41,6 +41,30 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 		Position -= Up * velocity;
 }
 
+//void Camera::ProcessPlayerMovement()
+//{
+//	if (player != nullptr)
+//	{
+//		float theta = player->getRotationDegree();
+//		float horizontalDistance = distanceFromPlayer * cos(glm::radians(theta));
+//		float verticalDistance = distanceFromPlayer * sin(glm::radians(theta));
+//
+//		float offsetX = verticalDistance * sin(glm::radians(theta));
+//		float offsetZ = horizontalDistance * cos(glm::radians(theta));
+//		Position.x = player->getPosition().x - offsetX;
+//		Position.z = player->getPosition().z - offsetZ;
+//		Position.y = player->getPosition().y + 2.5f;
+//
+//		//Yaw = 180.f - player->getRotation().y;
+//		if (Pitch > 89.0f)
+//			Pitch = 89.0f;
+//		if (Pitch < -89.0f)
+//			Pitch = -89.0f;
+//	}
+//	// TODO
+//	updateCameraVectors();
+//}
+
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
 {
 	xoffset *= MouseSensitivity;
@@ -79,3 +103,20 @@ void Camera::updateCameraVectors()
 	Up = glm::normalize(glm::cross(Right, Front));
 }
 
+Camera3rdPerson::Camera3rdPerson(Player * player)
+{
+	this->player = player;
+}
+
+void Camera3rdPerson::processMovement()
+{
+}
+
+void Camera3rdPerson::processMouse(float offset)
+{
+}
+
+glm::mat4 Camera3rdPerson::getViewMatrix()
+{
+	return glm::mat4();
+}

@@ -2,9 +2,11 @@
 
 #include <math.h>
 
-void GameObject::increaseRotation(glm::vec3 rotation)
-{
-	this->rotation += rotation;
+void GameObject::increaseRotation(float x, float y , float z)
+{	
+	rotX += x;
+	rotY += y;
+	rotZ += z;
 	transformed = true;
 }
 
@@ -12,6 +14,21 @@ void GameObject::increasePosition(glm::vec3 position)
 {
 	this->position += position;
 	transformed = true;
+}
+
+float GameObject::getRotX()
+{
+	return this->rotX;
+}
+
+float GameObject::getRotY()
+{
+	return this->rotY;
+}
+
+float GameObject::getRotZ()
+{
+	return this->rotZ;
 }
 
 float GameObject::getRotationDegree()
@@ -116,7 +133,7 @@ glm::mat4 GameObject::getTransform()
 	if (transformed) {
 		glm::mat4 transform = glm::mat4(1.0f);
 		transform = glm::translate(transform, this->position);
-		transform = glm::rotate(transform, glm::radians(this->rotationDegree), glm::vec3(0.f, 0.f, 1.f));
+		transform = glm::rotate(transform, this->rotationDegree,glm::vec3(rotX,rotY,rotZ));
 		transform = glm::scale(transform, this->scale);
 		transformMatrix = transform;
 		transformed = false;
@@ -158,21 +175,23 @@ void Player::move(bool keys[], float deltaTime)
 
 	if (keys[MOVE_LEFT] == true)
 	{
-		currentTurnSpeed = -TURNNING_SPEED;
+		currentTurnSpeed = TURNNING_SPEED;
 	}
 	else if (keys[MOVE_RIGHT] == true)
 	{
-		currentTurnSpeed = TURNNING_SPEED;
+		currentTurnSpeed = -TURNNING_SPEED;
 	}
 	else currentTurnSpeed = 0.f;
 
-	increaseRotation(glm::vec3(0.f, currentTurnSpeed * deltaTime, 0.f));
-	setRotationDegree(currentJumpSpeed * deltaTime);
+	increaseRotation(0.f, currentTurnSpeed * deltaTime, 0.f);
+
 	float distance = currentWalkingSpeed * deltaTime;
-	float dx = (float)(distance * sin(rotation.y));
-	float dz = (float)(distance * cos(rotation.y));
+	float dx = (float)(distance * sin(rotY));
+	float dz = (float)(distance * cos(rotY));
 	currentJumpSpeed += GRAVITY * deltaTime;
+	//rotationDegree = rotY;
 	increasePosition(glm::vec3(dx, currentJumpSpeed * deltaTime, dz));
+	this->rotationDegree = this->rotY;
 	if (position.y < LIMIT) {
 		currentJumpSpeed = 0.f;
 		position.y = LIMIT;
@@ -197,8 +216,6 @@ Player::Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model 
 	this->currentJumpSpeed = 0.f;
 
 	this->jumping = false;
-
-	this->rotation = glm::vec3(0.f, 0.f, 0.f);
 }
 
 void Player::transform() {
@@ -216,8 +233,6 @@ Enemy::Enemy(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * 
 	this->destructable = true;
 	this->available = true;
 	this->model = model;
-
-	this->rotation = glm::vec3(0.f, 0.f, 0.f);
 }
 
 void Enemy::transform() {
@@ -233,8 +248,6 @@ Block::Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * 
 	this->destructable = destructable;
 	this->available = true;
 	this->model = model;
-
-	this->rotation = glm::vec3(0.f, 0.f, 0.f);
 }
 void Block::transform() {
 

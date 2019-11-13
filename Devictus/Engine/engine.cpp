@@ -121,6 +121,8 @@ void Engine::keyAction()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (keys[GLFW_KEY_2])
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	if (keys[GLFW_KEY_3])
+		game->processKey(KEY_PAUSE, deltaTime);
 	if (keys[GLFW_KEY_W])
 		game->processKey(KEY_W, deltaTime);
 	if (keys[GLFW_KEY_S])

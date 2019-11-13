@@ -18,6 +18,7 @@ enum KEY {
 	KEY_D,
 	KEY_LEFT,
 	KEY_RIGHT,
+	KEY_PAUSE,
 };
 
 

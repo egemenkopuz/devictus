@@ -8,7 +8,6 @@
 #include "../Engine/shader.h"
 #include "../Engine/model.h"
 
-#include "camera.h"
 
 #include "../Utilities/definitions.h"
 
@@ -18,7 +17,7 @@ protected:
 	bool transformed;
 
 	float rotationDegree;
-	glm::vec3 rotation;
+	float rotX = 0.f, rotY = 1.f, rotZ = 0.f;
 	glm::vec3 scale;
 	glm::vec3 position;
 
@@ -35,8 +34,12 @@ protected:
 	std::vector<GameObject*> children;
 public:
 
-	void increaseRotation(glm::vec3 rotation);
+	void increaseRotation(float x, float y, float z);
 	void increasePosition(glm::vec3 position);
+
+	float getRotX();
+	float getRotY();
+	float getRotZ();
 
 	float getRotationDegree();
 	void setRotationDegree(float degree);
@@ -83,11 +86,11 @@ private:
 	float currentTurnSpeed;
 
 	const float WALKING_SPEED = 1.f;
-	const float TURNNING_SPEED = 2.5f;
-	const float GRAVITY = -15.f;
+	const float TURNNING_SPEED = 5.f;
+	const float GRAVITY = -25.f;
 	const float JUMPING_SPEED = 25.f;
 
-	const float LIMIT = 0.5f;	// WILL CHANGE WITH COLLUSION
+	const float LIMIT = 0.0f;	// WILL CHANGE WITH COLLUSION
 public:
 	void move(bool keys[], float deltaTime);
 

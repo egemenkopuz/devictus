@@ -15,8 +15,8 @@ Game::Game()
 Game::~Game()
 {
 	delete textRenderer;
-	delete sceneCamera;
-	delete uiCamera;
+	delete freeCamera;
+	delete playerCamera;
 	delete player;
 	delete enemy;
 }
@@ -24,7 +24,8 @@ Game::~Game()
 void Game::processMouse(float x, float y)
 {
 	if (state == GAME_ACTIVE)
-		sceneCamera->ProcessMouseMovement(x, y);
+		freeCamera->ProcessMouseMovement(x, y);
+	// 3rd person implemented here
 }
 
 void Game::processKey(KEY key, float deltaTime)
@@ -40,9 +41,11 @@ void Game::processKey(KEY key, float deltaTime)
 			else if (currentDiff == CHALLENGER) scene.init(currentDiff, "./Levels/challenger.lvl");
 			else scene.init(currentDiff, "./Levels/god.lvl");
 
-			sceneCamera = scene.sceneCamera;
-			player = scene.player;
-			enemy = scene.enemy;
+			this->player = scene.player;
+			this->enemy = scene.enemy;
+			this->freeCamera = scene.freeCamera;
+			this->playerCamera = scene.playerCamera;
+
 			state = GAME_ACTIVE;
 			break;
 		case KEY_W:
@@ -63,37 +66,44 @@ void Game::processKey(KEY key, float deltaTime)
 		menuSelectionBarrierVal = 15.0f * deltaTime;
 	}
 	else if (state == GAME_ACTIVE) {
+		if (key == KEY_PAUSE) {
+			if (!menuSelectionBarrier) return;
+			paused = !paused;
+			menuSelectionBarrier = false;
+			menuSelectionBarrierVal = 50.f * deltaTime;
+		}
+
 		if (key == KEY_ESCAPE) {
 			terminated = true;
 		}
 
 		if (key == KEY_SPACE) {
-			sceneCamera->ProcessKeyboard(UP, deltaTime);
-			movementKeys[MOVE_UP] = true;
+			if (paused) freeCamera->ProcessKeyboard(UP, deltaTime);
+			else movementKeys[MOVE_UP] = true;
 		}
 
 		if (key == KEY_LEFT_SHIFT) {
-			sceneCamera->ProcessKeyboard(DOWN, deltaTime);
+			if (paused) freeCamera->ProcessKeyboard(DOWN, deltaTime);
 		}
 
 		if (key == KEY_W) {
-			sceneCamera->ProcessKeyboard(FORWARD, deltaTime);
-			movementKeys[MOVE_FORWARD] = true;
+			if (paused) freeCamera->ProcessKeyboard(FORWARD, deltaTime);
+			else movementKeys[MOVE_FORWARD] = true;
 		}
 
 		if (key == KEY_A) {
-			sceneCamera->ProcessKeyboard(LEFT, deltaTime);
-			movementKeys[MOVE_LEFT] = true;
+			if (paused) freeCamera->ProcessKeyboard(LEFT, deltaTime);
+			else movementKeys[MOVE_LEFT] = true;
 		}
 		
 		if (key == KEY_S) {
-			sceneCamera->ProcessKeyboard(BACKWARD, deltaTime);
-			movementKeys[MOVE_BACKWARD] = true;
+			if (paused) freeCamera->ProcessKeyboard(BACKWARD, deltaTime);
+			else movementKeys[MOVE_BACKWARD] = true;
 		}
 		
 		if (key == KEY_D) {
-			sceneCamera->ProcessKeyboard(RIGHT, deltaTime);
-			movementKeys[MOVE_RIGHT] = true;
+			if (paused) freeCamera->ProcessKeyboard(RIGHT, deltaTime);
+			else movementKeys[MOVE_RIGHT] = true;
 		}
 			
 		if (key == KEY_LEFT) {
@@ -154,9 +164,19 @@ void Game::update(float deltaTime)
 		else menuSelectionBarrier = true;
 		break;
 	case GAME_ACTIVE:
-		player->move(movementKeys, deltaTime);
-		for (int b = 0; b < NUM_MOVE_KEYS; b++) movementKeys[b] = false;
-
+		if (menuSelectionBarrier == false && deltaTime < menuSelectionBarrierVal) {
+			menuSelectionBarrierVal -= deltaTime;
+		}
+		else
+		{
+			if (!paused)
+			{
+				player->move(movementKeys, deltaTime);
+				for (int b = 0; b < NUM_MOVE_KEYS; b++) movementKeys[b] = false;
+				playerCamera->processMovement();
+			}
+			menuSelectionBarrier = true;
+		}
 
 		break;
 	case GAME_WIN:
@@ -185,13 +205,28 @@ void Game::render(float deltaTime)
 		break;
 	case GAME_ACTIVE:
 		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(sceneCamera->Zoom), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = sceneCamera->GetViewMatrix();
+		glm::mat4 projection;
+		glm::mat4 view;
+		glm::vec3 position;
+		if (paused)
+		{
+			// free camera view
+			projection = glm::perspective(glm::radians(freeCamera->Zoom), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+			view = freeCamera->GetViewMatrix();
+			position = freeCamera->Position;
+		}
+		else
+		{
+			// 3rd person camera view
+
+
+		}
+		
 
 		// Shader modification
 		Shader blockShader = Manager::getShader("block");
 		blockShader.use();
-		blockShader.setVec3("viewPos", sceneCamera->Position);
+		blockShader.setVec3("viewPos", position);
 		blockShader.setMat4("projection", projection);
 		blockShader.setMat4("view", view);
 
@@ -203,6 +238,7 @@ void Game::render(float deltaTime)
 		this->scene.draw();
 
 		// Text rendering
+		if (paused) textRenderer->renderText("PAUSED", 870.f, 512.f, 0.5f, glm::vec3(0.0, 0.0f, 1.0f));
 		textRenderer->renderText("Mephisto", 870.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f));
 		textRenderer->renderText("FPS:" + std::to_string((int)ceil(1.0f / deltaTime)), 15.f, 1050.f, 0.35f, glm::vec3(1.0, 0.0f, 0.0f));
 

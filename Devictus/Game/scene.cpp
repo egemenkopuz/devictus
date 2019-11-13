@@ -11,7 +11,7 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-	delete this->sceneCamera;
+	delete this->freeCamera;
 	delete this->player;
 	delete this->enemy;
 
@@ -84,7 +84,8 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 	this->enemy = new Enemy(glm::vec3(0.0f, 0.5f * blockLength, 0.0f), 0.f, glm::vec3(0.3f), enemyModel);
 	this->player = new Player(glm::vec3(0.0f, 1.0f * blockLength, 4.0f * blockLength), 0.f, glm::vec3(0.2f), playerModel);
 
-	this->sceneCamera = new Camera(glm::vec3(0.0f, 2.0f * blockLength, 5.0f * blockLength));
+	this->freeCamera = new Camera(glm::vec3(0.0f, 2.0f * blockLength, 5.0f * blockLength));
+	this->playerCamera = new Camera3rdPerson(this->player);
 }
 
 void Scene::draw()
