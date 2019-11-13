@@ -189,7 +189,7 @@ void Player::move(bool keys[], float deltaTime)
 	float dx = (float)(distance * sin(rotY));
 	float dz = (float)(distance * cos(rotY));
 	currentJumpSpeed += GRAVITY * deltaTime;
-	//rotationDegree = rotY;
+	rotationDegree = currentTurnSpeed;
 	increasePosition(glm::vec3(dx, currentJumpSpeed * deltaTime, dz));
 	this->rotationDegree = this->rotY;
 	if (position.y < LIMIT) {

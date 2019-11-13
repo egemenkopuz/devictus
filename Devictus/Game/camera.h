@@ -15,7 +15,6 @@ enum CameraMovement {FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN, NONE};
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
 class Camera {
@@ -51,17 +50,19 @@ private:
 class Camera3rdPerson {
 private:
 	glm::vec3 position;
+	float angle = 0.f;
 
 	Player * player = nullptr;
-	float distanceFromPlayer = 10.f;
+	float distanceFromPlayer = 5.f;
 
 	float yaw;		// x circle direction
-	float pitch;	// y circle direction
+	float pitch = 30.f;	// y circle direction
 	float roll;		// z circle direction
 public:
 	Camera3rdPerson(Player * player);
 	void processMovement();
-	void processMouse(float offset);
+	void processMouse(float yoffset);
+	glm::vec3 getPosition();
 	glm::mat4 getViewMatrix();
 };
 

@@ -21,6 +21,7 @@ enum KEY {
 	KEY_PAUSE,
 };
 
+#define MOUSE_SENSITIVITY 0.1f
 
 #define NUM_MOVE_KEYS 5
 #define MOVE_FORWARD 0

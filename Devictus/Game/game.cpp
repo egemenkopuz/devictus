@@ -23,9 +23,10 @@ Game::~Game()
 
 void Game::processMouse(float x, float y)
 {
-	if (state == GAME_ACTIVE)
-		freeCamera->ProcessMouseMovement(x, y);
-	// 3rd person implemented here
+	if (state == GAME_ACTIVE) {
+		if (paused) freeCamera->ProcessMouseMovement(x, y);
+		else playerCamera->processMouse(y);
+	}
 }
 
 void Game::processKey(KEY key, float deltaTime)
@@ -130,10 +131,10 @@ void Game::init()
 	blockShader.setFloat("material.specular", 1.0f);
 
 	// directional light
-	blockShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-	blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-	blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-	blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+	//blockShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+	//blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+	//blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+	//blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
 	// point light 1
 	blockShader.setVec3("pointLights[0].position", glm::vec3(0.0f, 3.0f, 0.0f));
@@ -217,11 +218,10 @@ void Game::render(float deltaTime)
 		}
 		else
 		{
-			// 3rd person camera view
-
-
+			projection = glm::perspective(glm::radians(45.f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+			view = playerCamera->getViewMatrix();
+			position = playerCamera->getPosition();
 		}
-		
 
 		// Shader modification
 		Shader blockShader = Manager::getShader("block");
