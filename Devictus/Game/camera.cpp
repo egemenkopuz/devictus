@@ -103,8 +103,6 @@ void Camera::updateCameraVectors()
 	Up = glm::normalize(glm::cross(Right, Front));
 }
 
-
-
 // 3RD PERSON CAMERA
 
 Camera3rdPerson::Camera3rdPerson(Player * player)
@@ -114,17 +112,16 @@ Camera3rdPerson::Camera3rdPerson(Player * player)
 
 void Camera3rdPerson::processMovement()
 {
-	float verticalD = distanceFromPlayer * sin(glm::radians(pitch));
-	float horizontalD = distanceFromPlayer * cos(glm::radians(pitch));
+	float verticalDistance = distanceFromPlayer * sin(glm::radians(pitch));
+	float horizontalDistance = distanceFromPlayer * cos(glm::radians(pitch));
 
-	float theta = player->getRotationDegree() * 50.f;
-	angle = theta;
-	float offsetX = horizontalD * sin(glm::radians(theta));
-	float offsetZ = horizontalD * cos(glm::radians(theta));
+	float theta = player->getRotationDegree();
+	float offsetX = horizontalDistance * sin(theta);
+	float offsetZ = horizontalDistance * cos(theta);
 
 	position.x = player->getPosition().x - offsetX;
 	position.z = player->getPosition().z - offsetZ;
-	position.y = player->getPosition().y + verticalD;
+	position.y = player->getPosition().y + verticalDistance;
 
 	yaw = 180.f - theta;
 }
@@ -134,8 +131,8 @@ void Camera3rdPerson::processMouse(float yoffset)
 	yoffset *= MOUSE_SENSITIVITY;
 	pitch += yoffset;
 
-	if (pitch > 89.0f) pitch = 89.0f;
-	if (pitch < -89.0f) pitch = -89.0f;
+	if (pitch > 20.f) pitch = 20.f;
+	if (pitch < 0.f) pitch = 0.f;
 }
 
 glm::vec3 Camera3rdPerson::getPosition()
@@ -145,5 +142,5 @@ glm::vec3 Camera3rdPerson::getPosition()
 
 glm::mat4 Camera3rdPerson::getViewMatrix()
 {
-	return glm::lookAt(position, player->getPosition(), glm::vec3(0.f,0.1f,0.f));
+	return glm::lookAt(position, player->getPosition(), glm::vec3(0.f,1.f,0.f));
 }

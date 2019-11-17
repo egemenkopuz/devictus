@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <vector>
+#include <glm/gtx/vector_angle.hpp>
 
 #include "../Engine/texture.h"
 #include "../Engine/shader.h"
@@ -17,7 +18,7 @@ protected:
 	bool transformed;
 
 	float rotationDegree;
-	float rotX = 0.f, rotY = 1.f, rotZ = 0.f;
+	float rotX, rotY, rotZ;
 	glm::vec3 scale;
 	glm::vec3 position;
 
@@ -81,18 +82,20 @@ private:
 
 	bool jumping;
 
-	float currentWalkingSpeed;
+	float currentWalkingSpeedZ;
+	float currentWalkingSpeedX;
 	float currentJumpSpeed;
 	float currentTurnSpeed;
 
 	const float WALKING_SPEED = 1.f;
 	const float TURNNING_SPEED = 5.f;
-	const float GRAVITY = -25.f;
-	const float JUMPING_SPEED = 25.f;
+	const float GRAVITY = -2.f;
+	const float JUMPING_SPEED = 1.5f;
 
 	const float LIMIT = 0.0f;	// WILL CHANGE WITH COLLUSION
 public:
 	void move(bool keys[], float deltaTime);
+	void rotate(float xoffset, float yoffset,float deltaTime);
 
 	Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model);
 	void transform() override;

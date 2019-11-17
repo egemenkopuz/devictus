@@ -21,11 +21,11 @@ Game::~Game()
 	delete enemy;
 }
 
-void Game::processMouse(float x, float y)
+void Game::processMouse(float x, float y, float deltaTime)
 {
 	if (state == GAME_ACTIVE) {
 		if (paused) freeCamera->ProcessMouseMovement(x, y);
-		else playerCamera->processMouse(y);
+		else player->rotate(x,y, deltaTime);
 	}
 }
 
@@ -209,6 +209,7 @@ void Game::render(float deltaTime)
 		glm::mat4 projection;
 		glm::mat4 view;
 		glm::vec3 position;
+
 		if (paused)
 		{
 			// free camera view
@@ -230,10 +231,6 @@ void Game::render(float deltaTime)
 		blockShader.setMat4("projection", projection);
 		blockShader.setMat4("view", view);
 
-		// World transformation
-		//glm::mat4 model = glm::mat4(1.0f);
-		//blockShader.setMat4("model", model);
-
 		// Rendering the objects
 		this->scene.draw();
 
@@ -241,7 +238,7 @@ void Game::render(float deltaTime)
 		if (paused) textRenderer->renderText("PAUSED", 870.f, 512.f, 0.5f, glm::vec3(0.0, 0.0f, 1.0f));
 		textRenderer->renderText("Mephisto", 870.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f));
 		textRenderer->renderText("FPS:" + std::to_string((int)ceil(1.0f / deltaTime)), 15.f, 1050.f, 0.35f, glm::vec3(1.0, 0.0f, 0.0f));
-
+		
 		break;
 	case GAME_WIN:
 		break;
@@ -255,6 +252,7 @@ void Game::checkCollisions()
 }
 bool Game::isTerminated()
 {
-	return terminated;
+	//return terminated;
+	return false;
 }
 

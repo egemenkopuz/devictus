@@ -50,7 +50,6 @@ private:
 class Camera3rdPerson {
 private:
 	glm::vec3 position;
-	float angle = 0.f;
 
 	Player * player = nullptr;
 	float distanceFromPlayer = 5.f;

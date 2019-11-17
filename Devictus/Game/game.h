@@ -18,7 +18,7 @@ public:
 	Game();
 	~Game();
 
-	void processMouse(float x, float y);
+	void processMouse(float x, float y,float deltaTime);
 	void processKey(KEY key, float deltaTime);
 
 	void init();

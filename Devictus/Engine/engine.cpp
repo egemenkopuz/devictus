@@ -110,7 +110,7 @@ void Engine::mouseMoveCallback(GLFWwindow * window, double xpos, double ypos)
 	engine->mouseX = xpos;
 	engine->mouseY = ypos;
 
-	engine->game->processMouse(xoffset, yoffset);
+	engine->game->processMouse(xoffset, yoffset, engine->deltaTime);
 }
 
 void Engine::keyAction()

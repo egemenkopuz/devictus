@@ -23,11 +23,14 @@ enum KEY {
 
 #define MOUSE_SENSITIVITY 0.1f
 
-#define NUM_MOVE_KEYS 5
+#define NUM_MOVE_KEYS 7
+
 #define MOVE_FORWARD 0
 #define MOVE_BACKWARD 1
 #define MOVE_LEFT 2
 #define MOVE_RIGHT 3
 #define MOVE_UP 4
+#define MOVE_MOUSE_LEFT 5
+#define MOVE_MOUSE_RIGHT 6
 
 #endif

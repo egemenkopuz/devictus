@@ -165,38 +165,49 @@ void Player::move(bool keys[], float deltaTime)
 
 	if (keys[MOVE_FORWARD] == true)
 	{
-		currentWalkingSpeed = WALKING_SPEED;
+		currentWalkingSpeedX = WALKING_SPEED;
 	}
 	else if (keys[MOVE_BACKWARD] == true)
 	{
-		currentWalkingSpeed = -WALKING_SPEED;
+		currentWalkingSpeedX = -WALKING_SPEED;
 	}
-	else currentWalkingSpeed = 0.f;
+	else currentWalkingSpeedX = 0.f;
 
 	if (keys[MOVE_LEFT] == true)
 	{
-		currentTurnSpeed = TURNNING_SPEED;
+		currentWalkingSpeedZ = -WALKING_SPEED;
 	}
 	else if (keys[MOVE_RIGHT] == true)
 	{
-		currentTurnSpeed = -TURNNING_SPEED;
+		currentWalkingSpeedZ = WALKING_SPEED;
 	}
-	else currentTurnSpeed = 0.f;
+	else currentWalkingSpeedZ = 0.f;
 
-	increaseRotation(0.f, currentTurnSpeed * deltaTime, 0.f);
+	float distance = 0.f, dX = 0.f, dZ = 0.f;
 
-	float distance = currentWalkingSpeed * deltaTime;
-	float dx = (float)(distance * sin(rotY));
-	float dz = (float)(distance * cos(rotY));
+	float mX = currentWalkingSpeedX * deltaTime;
+	float mZ = currentWalkingSpeedZ * deltaTime;
+
+	dX += (float)(mX * sin(rotationDegree));
+	dZ += (float)(mX * cos(rotationDegree));
+
+	dX += (float)(mZ * -cos(rotationDegree));
+	dZ += (float)(mZ * sin(rotationDegree));
+
 	currentJumpSpeed += GRAVITY * deltaTime;
-	rotationDegree = currentTurnSpeed;
-	increasePosition(glm::vec3(dx, currentJumpSpeed * deltaTime, dz));
-	this->rotationDegree = this->rotY;
+
+	increasePosition(glm::vec3(dX, currentJumpSpeed, dZ));
 	if (position.y < LIMIT) {
 		currentJumpSpeed = 0.f;
 		position.y = LIMIT;
 		jumping = false;
 	}
+}
+
+void Player::rotate(float xoffset, float yoffset, float deltaTime)
+{
+	xoffset *= -MOUSE_SENSITIVITY;
+	rotationDegree += xoffset * deltaTime;
 }
 
 Player::Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model) {
@@ -211,11 +222,16 @@ Player::Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model 
 	this->available = true;
 	this->model = model;
 
-	this->currentWalkingSpeed = 0.f;
+	this->currentWalkingSpeedZ = 0.f;
 	this->currentTurnSpeed = 0.f;
 	this->currentJumpSpeed = 0.f;
+	this->currentWalkingSpeedX = 0.f;
 
 	this->jumping = false;
+
+	this->rotX = 0.f;
+	this->rotY = 1.f;
+	this->rotZ = 0.f;
 }
 
 void Player::transform() {
@@ -233,6 +249,10 @@ Enemy::Enemy(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * 
 	this->destructable = true;
 	this->available = true;
 	this->model = model;
+
+	this->rotX = 0.f;
+	this->rotY = 1.f;
+	this->rotZ = 0.f;
 }
 
 void Enemy::transform() {
@@ -248,6 +268,10 @@ Block::Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * 
 	this->destructable = destructable;
 	this->available = true;
 	this->model = model;
+
+	this->rotX = 0.f;
+	this->rotY = 1.f;
+	this->rotZ = 0.f;
 }
 void Block::transform() {
 
