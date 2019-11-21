@@ -175,7 +175,9 @@
     <Image Include="Textures\wall.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\aabb.h" />
     <ClInclude Include="Engine\engine.h" />
+    <ClInclude Include="Engine\intersection.h" />
     <ClInclude Include="Engine\manager.h" />
     <ClInclude Include="Engine\mesh.h" />
     <ClInclude Include="Engine\model.h" />

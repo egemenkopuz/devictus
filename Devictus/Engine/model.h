@@ -12,6 +12,7 @@
 
 #include "mesh.h"
 #include "shader.h"
+#include "aabb.h"
 
 #include <string>
 #include <fstream>
@@ -30,11 +31,63 @@ public:
 	string directory;
 	bool gammaCorrection;
 
+	AABB aabb;
+
+	glm::vec3 calculateCenter()
+	{
+		float totX = 0.f, totY = 0.f, totZ = 0.f;
+		float count = 0;
+
+		for (auto& iter : meshes)
+		{
+			for (auto& iterV : iter.vertices)
+			{
+				count += 1.f;
+
+				totX += iterV.position.x;
+				totY += iterV.position.y;
+				totZ += iterV.position.z;
+			}
+		}
+
+		return glm::vec3(totX / count, totY / count, totZ / count);
+	}
+
+	std::pair<glm::vec3, glm::vec3> calculateExtents(glm::vec3 center)
+	{
+		float minX = center.x, minY = center.y, minZ = center.z, maxX = center.x, maxY = center.y, maxZ = center.z;
+		for (auto& iter : meshes)
+		{
+			for (auto& iterV : iter.vertices)
+			{
+				glm::vec3 pos = iterV.position;
+
+				if (pos.x < minX)
+					minX = pos.x;
+				if (pos.x > maxX)
+					maxX = pos.x;
+				if (pos.y < minY)
+					minY = pos.y;
+				if (pos.y > maxY)
+					maxY = pos.y;
+				if (pos.z < minZ)
+					minZ = pos.z;
+				if (pos.z > maxZ)
+					maxZ = pos.z;
+			}
+		}
+		return std::make_pair(glm::vec3(minX, minY, minZ), glm::vec3 (maxX, maxY, maxZ));
+	}
+
 	/*  Functions   */
 	// constructor, expects a filepath to a 3D model.
 	Model(string const &path, bool gamma = false) : gammaCorrection(gamma)
 	{
 		loadModel(path);
+
+		glm::vec3 center = calculateCenter();
+		std::pair<glm::vec3, glm::vec3> defAABB = calculateExtents(center);
+		this->aabb = AABB(defAABB.first, defAABB.second);
 	}
 
 	// draws the model, and thus all its meshes

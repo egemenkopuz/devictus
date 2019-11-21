@@ -175,6 +175,12 @@
     <ClInclude Include="Engine\text.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\aabb.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\intersection.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Objects\Block\block.obj">

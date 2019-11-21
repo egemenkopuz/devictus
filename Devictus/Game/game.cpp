@@ -1,4 +1,4 @@
-#include "game.h"
+﻿#include "game.h"
 
 Game::Game()
 {
@@ -173,8 +173,15 @@ void Game::update(float deltaTime)
 			if (!paused)
 			{
 				player->move(movementKeys, deltaTime);
+				enemy->action(deltaTime);
 				for (int b = 0; b < NUM_MOVE_KEYS; b++) movementKeys[b] = false;
+
+				checkCollisions(deltaTime);
+
 				playerCamera->processMovement();
+
+				if (!player->isAvailable()) 
+					state = GAME_LOSE;
 			}
 			menuSelectionBarrier = true;
 		}
@@ -241,18 +248,41 @@ void Game::render(float deltaTime)
 		
 		break;
 	case GAME_WIN:
+		textRenderer->renderText("YOU WIN", 800.f, 500.f, 1.f, glm::vec3(1.0, 0.0f, 0.0f));
 		break;
 	case GAME_LOSE:
+		textRenderer->renderText("YOU LOSE", 800.f, 500.f, 1.f, glm::vec3(1.0, 0.0f, 0.0f));
 		break;
 	}
 }
-void Game::checkCollisions()
+void Game::checkCollisions(float deltaTime)
 {
+	// player & projectiles - blocks
+	for (auto& block : scene.sceneGraph)
+	{
+		if (block->isAvailable())
+		{
+			Collision collision = player->currentAABB.intersectAABB(block->currentAABB);
 
+			if (std::get<0>(collision))
+			{
+				CollisionDirection dir = std::get<1>(collision);
+				glm::vec3 vec = std::get<2>(collision);
+				//block->disable();
+				glm::vec3 playerPos = player->getPosition();
+				player->setPosition(glm::vec3(playerPos.x, block->currentAABB.getMaxExtent().y + player->currentAABB.height + 0.001f, playerPos.z));
+				player->LIMIT = block->currentAABB.getMaxExtent().y - 0.001f;
+				break;
+			}
+			else 
+				player->LIMIT = -5.f;
+		}
+	}
+
+	// player - projectiles
 }
 bool Game::isTerminated()
 {
-	//return terminated;
-	return false;
+	return terminated;
 }
 

@@ -133,11 +133,12 @@ glm::mat4 GameObject::getTransform()
 	if (transformed) {
 		glm::mat4 transform = glm::mat4(1.0f);
 		transform = glm::translate(transform, this->position);
+		glm::mat4 cTransform = glm::scale(transform, this->scale);
 		transform = glm::rotate(transform, this->rotationDegree,glm::vec3(rotX,rotY,rotZ));
 		transform = glm::scale(transform, this->scale);
 		transformMatrix = transform;
+		this->currentAABB.updateAABB(cTransform, position);
 		transformed = false;
-		// TODO CHILDREN
 	}
 	return transformMatrix;;
 }
@@ -152,7 +153,6 @@ void GameObject::addChild(GameObject * child)
 	child->attachParent(this);
 	children.push_back(child);
 }
-
 
 void Player::move(bool keys[], float deltaTime)
 {
@@ -197,6 +197,10 @@ void Player::move(bool keys[], float deltaTime)
 	currentJumpSpeed += GRAVITY * deltaTime;
 
 	increasePosition(glm::vec3(dX, currentJumpSpeed, dZ));
+
+	if (position.y < -4.9f)
+		available = false;
+
 	if (position.y < LIMIT) {
 		currentJumpSpeed = 0.f;
 		position.y = LIMIT;
@@ -232,10 +236,27 @@ Player::Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model 
 	this->rotX = 0.f;
 	this->rotY = 1.f;
 	this->rotZ = 0.f;
+
+	this->currentAABB = model->aabb;
 }
 
 void Player::transform() {
 
+}
+
+void Enemy::action(float deltaTime)
+{
+	// TODO action against player
+
+
+
+
+	prevDeltaTime = deltaTime;
+}
+
+void Enemy::attachPlayer(Player * player)
+{
+	this->player = player;
 }
 
 Enemy::Enemy(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model) {
@@ -253,6 +274,8 @@ Enemy::Enemy(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * 
 	this->rotX = 0.f;
 	this->rotY = 1.f;
 	this->rotZ = 0.f;
+
+	this->currentAABB = model->aabb;
 }
 
 void Enemy::transform() {
@@ -272,6 +295,8 @@ Block::Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * 
 	this->rotX = 0.f;
 	this->rotY = 1.f;
 	this->rotZ = 0.f;
+
+	this->currentAABB = model->aabb;
 }
 void Block::transform() {
 

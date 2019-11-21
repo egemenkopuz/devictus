@@ -46,5 +46,5 @@ private:
 
 	float FPS;
 
-	void checkCollisions();
+	void checkCollisions(float deltaTime);
 };

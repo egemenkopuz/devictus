@@ -9,7 +9,6 @@
 #include "../Engine/shader.h"
 #include "../Engine/model.h"
 
-
 #include "../Utilities/definitions.h"
 
 class GameObject {
@@ -33,7 +32,12 @@ protected:
 
 	GameObject * parent;
 	std::vector<GameObject*> children;
+
+
 public:
+	AABB currentAABB;
+
+	float height;
 
 	void increaseRotation(float x, float y, float z);
 	void increasePosition(glm::vec3 position);
@@ -91,9 +95,8 @@ private:
 	const float TURNNING_SPEED = 5.f;
 	const float GRAVITY = -2.f;
 	const float JUMPING_SPEED = 1.5f;
-
-	const float LIMIT = 0.0f;	// WILL CHANGE WITH COLLUSION
 public:
+	float LIMIT = 0.0f;	// WILL CHANGE WITH COLLUSION
 	void move(bool keys[], float deltaTime);
 	void rotate(float xoffset, float yoffset,float deltaTime);
 
@@ -104,7 +107,11 @@ public:
 class Enemy : public GameObject {
 private:
 	bool casting;
+	Player * player;
+	float prevDeltaTime;
 public:
+	void action(float deltaTime);
+	void attachPlayer(Player * player);
 	Enemy(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model);
 	void transform() override;
 };

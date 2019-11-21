@@ -30,6 +30,8 @@ public:
 	Player * player;
 	Enemy * enemy;
 
+	std::vector<GameObject*> sceneGraph;
+
 private:
 	Model * blockModel;
 	Model * playerModel;
@@ -37,8 +39,6 @@ private:
 
 	float blockLength;
 	LevelDifficulty levelDifficulty;
-
-	std::vector<GameObject*> sceneGraph;
 
 	static LevelInfo readLevelFromFile(const char *levelPath);
 };
