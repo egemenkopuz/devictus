@@ -75,12 +75,6 @@
     <None Include="Objects\Block\block.mtl">
       <Filter>Objects\Block</Filter>
     </None>
-    <None Include="Shaders\text.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\text.vert">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Objects\Enemy\Earth_Golem_OBJ.mtl">
       <Filter>Objects\Enemy</Filter>
     </None>
@@ -88,6 +82,18 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\aabb.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\depth.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\depth.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\object.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\object.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
@@ -128,9 +134,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Textures\block.jpg">
-      <Filter>Textures</Filter>
-    </Image>
     <Image Include="Textures\container.jpg">
       <Filter>Textures</Filter>
     </Image>

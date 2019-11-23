@@ -143,12 +143,14 @@
     <None Include="Shaders\aabb.vert" />
     <None Include="Shaders\block.frag" />
     <None Include="Shaders\block.vert" />
+    <None Include="Shaders\depth.frag" />
+    <None Include="Shaders\depth.vert" />
     <None Include="Shaders\lightblock.frag" />
     <None Include="Shaders\lightblock.vert" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
-    <None Include="Shaders\text.frag" />
-    <None Include="Shaders\text.vert" />
+    <None Include="Shaders\object.frag" />
+    <None Include="Shaders\object.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\engine.cpp" />
@@ -172,7 +174,6 @@
     <Image Include="Objects\Enemy\EarthGolem_albedo.jpeg">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Image>
-    <Image Include="Textures\block.jpg" />
     <Image Include="Textures\container.jpg" />
     <Image Include="Textures\wall.jpg" />
   </ItemGroup>

@@ -24,6 +24,7 @@ public:
 
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
 	void draw(bool aabbDebug);
+	void drawShadows();
 
 	Camera * freeCamera;
 	Camera3rdPerson * playerCamera;
@@ -31,7 +32,6 @@ public:
 	Enemy * enemy;
 
 	std::vector<GameObject*> sceneGraph;
-
 private:
 	Model * blockModel;
 	Model * playerModel;

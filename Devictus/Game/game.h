@@ -8,6 +8,7 @@
 
 #include "scene.h"
 
+
 enum GameState { GAME_MENU, GAME_ACTIVE, GAME_WIN, GAME_LOSE, GAME_EXIT };
 
 class Game {

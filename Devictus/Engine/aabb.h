@@ -86,6 +86,8 @@ public:
 
 	bool isCollided() { return collided; }
 
+	void setCollision(bool c) { this->collided = c; }
+
 	glm::vec3 getMinExtent() { return this->minExtent; }
 	glm::vec3 getMaxExtent() { return this->maxExtent; }
 	std::vector<glm::vec3> getVertices() { return this->vertices; }
@@ -164,12 +166,13 @@ public:
 
 		this->minExtent = glm::vec3(minX, minY, minZ);
 		this->maxExtent = glm::vec3(maxX, maxY, maxZ);
+
+		this->collided = false;
 	}
 
 	Collision intersectAABB(AABB& other)
 	{
 		CollisionDirection dir;
-		collided = false;
 		other.collided = false;
 
 		//glm::vec3 distance1 = other.getMinExtent() - this->maxExtent;
@@ -197,6 +200,7 @@ public:
 
 		glm::vec3 distance;
 		collided = true;
+
 		unsigned int best = 0;
 		float dcoll = NULL;
 

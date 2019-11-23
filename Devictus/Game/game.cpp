@@ -127,16 +127,12 @@ void Game::processKey(KEY key, float deltaTime)
 
 void Game::init()
 {
+
 	std::cout << "GAME:INITILIZATION" << std::endl;
 	Manager::loadShader("./Shaders/block.vert", "./Shaders/block.frag", "block");
 	Manager::loadShader("./Shaders/lightblock.vert", "./Shaders/lightblock.frag", "lightblock");
 	Manager::loadShader("./Shaders/text.vert", "./Shaders/text.frag", "text");
 	Manager::loadShader("./Shaders/aabb.vert", "./Shaders/aabb.frag", "aabb");
-
-
-	/*Shader aabbShader = Manager::getShader("aabb");
-	aabbShader.use();
-	aabbShader.setVec3("color",glm::vec3(0.f, 1.f, 0.f));*/
 
 	Shader blockShader = Manager::getShader("block");
 	blockShader.use();
@@ -217,6 +213,7 @@ void Game::render(float deltaTime)
 	switch (state) {
 	case GAME_MENU:
 		// Text rendering
+
 		textRenderer->renderText("DEVICTUS", 650.f, 800.f, 2.0f, glm::vec3(1.0, 0.0f, 0.0f));
 		textRenderer->renderText("Choose Difficulty", 800.f, gameHeight / 2.5f, 0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
 		if (currentDiff == PEASANT)
@@ -311,7 +308,7 @@ void Game::checkCollisions(float deltaTime)
 					/*else if (player->currentAABB.getMaxExtent().x < block->getPosition().x - block->currentAABB.widthX * 0.8f)
 						dir = C_BOTTOM;*/
 				}
-				
+
 				if (intersectedFaces[4] == false && dir == C_FAR) // +z reaction
 				{
 					if (player->currentAABB.getMinExtent().y < block->getPosition().y + block->currentAABB.height * 0.9f)
@@ -344,13 +341,15 @@ void Game::checkCollisions(float deltaTime)
 				}
 				else if (intersectedFaces[3] == false && dir == C_TOP) // -y reaction
 				{
-					float difference = block->currentAABB.getMaxExtent().y - player->currentAABB.getMinExtent().y;
+					float difference = block->currentAABB.getMinExtent().y - player->currentAABB.getMaxExtent().y;
 					player->increasePosition(glm::vec3(0.f, difference, 0.f));
 					intersectedFaces[3] = true;
 				}
 			}
 		}
 	}
+	if (intersectedFaces[0] == true || intersectedFaces[1] == true || intersectedFaces[2] == true || intersectedFaces[3] == true || intersectedFaces[4] == true || intersectedFaces[5] == true)
+		player->currentAABB.setCollision(true);
 }
 bool Game::isTerminated()
 {

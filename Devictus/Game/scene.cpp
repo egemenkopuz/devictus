@@ -94,8 +94,10 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 
 void Scene::draw(bool aabbDebug)
 {
-	for (auto iter : sceneGraph) {
-		if (iter->isAvailable()) {
+	for (auto iter : sceneGraph) 
+	{
+		if (iter->isAvailable()) 
+		{
 			if (aabbDebug)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
