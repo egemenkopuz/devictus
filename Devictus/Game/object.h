@@ -14,6 +14,7 @@
 class GameObject {
 protected:
 	glm::mat4 transformMatrix;
+	glm::mat4 transformMatrixAABB;
 	bool transformed;
 
 	float rotationDegree;
@@ -36,8 +37,6 @@ protected:
 
 public:
 	AABB currentAABB;
-
-	float height;
 
 	void increaseRotation(float x, float y, float z);
 	void increasePosition(glm::vec3 position);
@@ -68,10 +67,12 @@ public:
 
 	bool getDamage(int damage);
 
+	void drawAABB(Shader shader);
 	void drawModel(Shader shader);
 
 	~GameObject();
 
+	glm::mat4 getAABBTransform();
 	glm::mat4 getTransform();
 	virtual void transform() = 0;
 
@@ -93,11 +94,18 @@ private:
 
 	const float WALKING_SPEED = 1.f;
 	const float TURNNING_SPEED = 5.f;
-	const float GRAVITY = -2.f;
+	const float GRAVITY = -0.5f;
 	const float JUMPING_SPEED = 1.5f;
 public:
-	float LIMIT = 0.0f;	// WILL CHANGE WITH COLLUSION
+	float getCurrentWalkingSpeedZ() { return currentWalkingSpeedZ; }
+	float getCurrentWalkingSpeedX() { return currentWalkingSpeedX; }
+	float getCurrentJumpSpeed() { return currentJumpSpeed; }
+
+
+	float LIMIT = -5.f;
+
 	void move(bool keys[], float deltaTime);
+
 	void rotate(float xoffset, float yoffset,float deltaTime);
 
 	Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model);

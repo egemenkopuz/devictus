@@ -25,7 +25,7 @@ void Game::processMouse(float x, float y, float deltaTime)
 {
 	if (state == GAME_ACTIVE) {
 		if (paused) freeCamera->ProcessMouseMovement(x, y);
-		else player->rotate(x,y, deltaTime);
+		else player->rotate(x, y, deltaTime);
 	}
 }
 
@@ -74,6 +74,13 @@ void Game::processKey(KEY key, float deltaTime)
 			menuSelectionBarrierVal = 50.f * deltaTime;
 		}
 
+		if (key == KEY_DEBUG) {
+			if (!menuSelectionBarrier) return;
+			aabbDebug = !aabbDebug;
+			menuSelectionBarrier = false;
+			menuSelectionBarrierVal = 15.f * deltaTime;
+		}
+
 		if (key == KEY_ESCAPE) {
 			terminated = true;
 		}
@@ -85,6 +92,7 @@ void Game::processKey(KEY key, float deltaTime)
 
 		if (key == KEY_LEFT_SHIFT) {
 			if (paused) freeCamera->ProcessKeyboard(DOWN, deltaTime);
+			else movementKeys[MOVE_DOWN] = true;
 		}
 
 		if (key == KEY_W) {
@@ -96,17 +104,17 @@ void Game::processKey(KEY key, float deltaTime)
 			if (paused) freeCamera->ProcessKeyboard(LEFT, deltaTime);
 			else movementKeys[MOVE_LEFT] = true;
 		}
-		
+
 		if (key == KEY_S) {
 			if (paused) freeCamera->ProcessKeyboard(BACKWARD, deltaTime);
 			else movementKeys[MOVE_BACKWARD] = true;
 		}
-		
+
 		if (key == KEY_D) {
 			if (paused) freeCamera->ProcessKeyboard(RIGHT, deltaTime);
 			else movementKeys[MOVE_RIGHT] = true;
 		}
-			
+
 		if (key == KEY_LEFT) {
 			// light attack
 		}
@@ -123,6 +131,12 @@ void Game::init()
 	Manager::loadShader("./Shaders/block.vert", "./Shaders/block.frag", "block");
 	Manager::loadShader("./Shaders/lightblock.vert", "./Shaders/lightblock.frag", "lightblock");
 	Manager::loadShader("./Shaders/text.vert", "./Shaders/text.frag", "text");
+	Manager::loadShader("./Shaders/aabb.vert", "./Shaders/aabb.frag", "aabb");
+
+
+	/*Shader aabbShader = Manager::getShader("aabb");
+	aabbShader.use();
+	aabbShader.setVec3("color",glm::vec3(0.f, 1.f, 0.f));*/
 
 	Shader blockShader = Manager::getShader("block");
 	blockShader.use();
@@ -131,10 +145,10 @@ void Game::init()
 	blockShader.setFloat("material.specular", 1.0f);
 
 	// directional light
-	//blockShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-	//blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-	//blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-	//blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+	blockShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+	blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+	blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+	blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
 	// point light 1
 	blockShader.setVec3("pointLights[0].position", glm::vec3(0.0f, 3.0f, 0.0f));
@@ -175,12 +189,13 @@ void Game::update(float deltaTime)
 				player->move(movementKeys, deltaTime);
 				enemy->action(deltaTime);
 				for (int b = 0; b < NUM_MOVE_KEYS; b++) movementKeys[b] = false;
-
+				glm::vec3 resutVelocity;
+				
 				checkCollisions(deltaTime);
 
 				playerCamera->processMovement();
 
-				if (!player->isAvailable()) 
+				if (!player->isAvailable())
 					state = GAME_LOSE;
 			}
 			menuSelectionBarrier = true;
@@ -238,14 +253,19 @@ void Game::render(float deltaTime)
 		blockShader.setMat4("projection", projection);
 		blockShader.setMat4("view", view);
 
+		Shader aabbShader = Manager::getShader("aabb");
+		aabbShader.use();
+		aabbShader.setMat4("projection", projection);
+		aabbShader.setMat4("view", view);
+
 		// Rendering the objects
-		this->scene.draw();
+		this->scene.draw(aabbDebug);
 
 		// Text rendering
 		if (paused) textRenderer->renderText("PAUSED", 870.f, 512.f, 0.5f, glm::vec3(0.0, 0.0f, 1.0f));
 		textRenderer->renderText("Mephisto", 870.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f));
 		textRenderer->renderText("FPS:" + std::to_string((int)ceil(1.0f / deltaTime)), 15.f, 1050.f, 0.35f, glm::vec3(1.0, 0.0f, 0.0f));
-		
+
 		break;
 	case GAME_WIN:
 		textRenderer->renderText("YOU WIN", 800.f, 500.f, 1.f, glm::vec3(1.0, 0.0f, 0.0f));
@@ -258,28 +278,79 @@ void Game::render(float deltaTime)
 void Game::checkCollisions(float deltaTime)
 {
 	// player & projectiles - blocks
+	bool intersectedFaces[6] = { 0,0,0,0,0,0 };
 	for (auto& block : scene.sceneGraph)
 	{
 		if (block->isAvailable())
 		{
 			Collision collision = player->currentAABB.intersectAABB(block->currentAABB);
-
 			if (std::get<0>(collision))
 			{
+
 				CollisionDirection dir = std::get<1>(collision);
-				glm::vec3 vec = std::get<2>(collision);
-				//block->disable();
-				glm::vec3 playerPos = player->getPosition();
-				player->setPosition(glm::vec3(playerPos.x, block->currentAABB.getMaxExtent().y + player->currentAABB.height + 0.001f, playerPos.z));
-				player->LIMIT = block->currentAABB.getMaxExtent().y - 0.001f;
-				break;
+				glm::vec3 normal = std::get<2>(collision);
+				if (intersectedFaces[0] == false && dir == C_LEFT) // +x reaction
+				{
+					if (player->currentAABB.getMinExtent().y < block->getPosition().y + block->currentAABB.height * 0.9f)
+					{
+						float difference = block->currentAABB.getMaxExtent().x - player->currentAABB.getMinExtent().x;
+						player->increasePosition(glm::vec3(difference + 0.01f, 0.f, 0.f));
+						intersectedFaces[0] = true;
+					}
+					/*else if (player->currentAABB.getMinExtent().x < block->getPosition().x + block->currentAABB.widthX * 0.8f)
+						dir = C_BOTTOM;*/
+				}
+				else if (intersectedFaces[1] == false && dir == C_RIGHT) // -x reaction
+				{
+					if (player->currentAABB.getMinExtent().y < block->getPosition().y + block->currentAABB.height * 0.9f)
+					{
+						float difference = block->currentAABB.getMinExtent().x - player->currentAABB.getMaxExtent().x;
+						player->increasePosition(glm::vec3(difference - 0.01f, 0.f, 0.f));
+						intersectedFaces[1] = true;
+					}
+					/*else if (player->currentAABB.getMaxExtent().x < block->getPosition().x - block->currentAABB.widthX * 0.8f)
+						dir = C_BOTTOM;*/
+				}
+				
+				if (intersectedFaces[4] == false && dir == C_FAR) // +z reaction
+				{
+					if (player->currentAABB.getMinExtent().y < block->getPosition().y + block->currentAABB.height * 0.9f)
+					{
+						float difference = block->currentAABB.getMaxExtent().z - player->currentAABB.getMinExtent().z;
+						player->increasePosition(glm::vec3(0.f, 0.f, difference + 0.01f));
+						intersectedFaces[4] = true;
+					}
+					/*else if (player->currentAABB.getMinExtent().z > block->getPosition().z + block->currentAABB.widthZ)
+						dir = C_BOTTOM;*/
+				}
+				else if (intersectedFaces[5] == false && dir == C_CLOSE) // -z reaction
+				{
+					if (player->currentAABB.getMinExtent().y < block->getPosition().y + block->currentAABB.height * 0.9f)
+					{
+						float difference = block->currentAABB.getMinExtent().z - player->currentAABB.getMaxExtent().z;
+						player->increasePosition(glm::vec3(0.f, 0.f, difference - 0.01f));
+						intersectedFaces[5] = true;
+					}
+					/*else if (player->currentAABB.getMaxExtent().z > block->getPosition().z - block->currentAABB.widthZ)
+						dir = C_BOTTOM;*/
+				}
+
+				if (intersectedFaces[2] == false && dir == C_BOTTOM) // +y reaction
+				{
+					float difference = block->currentAABB.getMaxExtent().y - player->currentAABB.getMinExtent().y;
+					player->increasePosition(glm::vec3(0.f, difference, 0.f));
+					/*player->LIMIT = block->currentAABB.getMaxExtent().y + 0.001f;*/
+					intersectedFaces[2] = true;
+				}
+				else if (intersectedFaces[3] == false && dir == C_TOP) // -y reaction
+				{
+					float difference = block->currentAABB.getMaxExtent().y - player->currentAABB.getMinExtent().y;
+					player->increasePosition(glm::vec3(0.f, difference, 0.f));
+					intersectedFaces[3] = true;
+				}
 			}
-			else 
-				player->LIMIT = -5.f;
 		}
 	}
-
-	// player - projectiles
 }
 bool Game::isTerminated()
 {

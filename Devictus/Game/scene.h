@@ -23,7 +23,7 @@ public:
 	~Scene();
 
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
-	void draw();
+	void draw(bool aabbDebug);
 
 	Camera * freeCamera;
 	Camera3rdPerson * playerCamera;

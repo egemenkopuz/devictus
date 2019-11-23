@@ -60,7 +60,12 @@ glm::vec3 GameObject::getPosition()
 
 void GameObject::setPosition(glm::vec3 position)
 {
-	this->position = position;
+	if (position.x != NULL)
+		this->position.x = position.x;
+	if (position.y != NULL)
+		this->position.y = position.y;
+	if (position.z != NULL)
+		this->position.z = position.z;
 	transformed = true;
 }
 
@@ -114,6 +119,11 @@ bool GameObject::getDamage(int damage)
 	return true;
 }
 
+void GameObject::drawAABB(Shader shader)
+{
+	this->currentAABB.draw(shader);
+}
+
 void GameObject::drawModel(Shader shader)
 {
 	this->model->Draw(shader);
@@ -128,6 +138,11 @@ GameObject::~GameObject()
 	children.clear();
 }
 
+glm::mat4 GameObject::getAABBTransform()
+{
+	return transformMatrixAABB;
+}
+
 glm::mat4 GameObject::getTransform()
 {
 	if (transformed) {
@@ -137,7 +152,9 @@ glm::mat4 GameObject::getTransform()
 		transform = glm::rotate(transform, this->rotationDegree,glm::vec3(rotX,rotY,rotZ));
 		transform = glm::scale(transform, this->scale);
 		transformMatrix = transform;
+		transformMatrixAABB = cTransform;
 		this->currentAABB.updateAABB(cTransform, position);
+		//this->currentAABB.updateAABB(transform, position);
 		transformed = false;
 	}
 	return transformMatrix;;
@@ -153,39 +170,42 @@ void GameObject::addChild(GameObject * child)
 	child->attachParent(this);
 	children.push_back(child);
 }
-
 void Player::move(bool keys[], float deltaTime)
 {
+	currentJumpSpeed = 0.f;
+	currentWalkingSpeedX = 0.f;
+	currentWalkingSpeedZ = 0.f;
 	if (keys[MOVE_UP] == true && !jumping)
 	{
 		currentJumpSpeed = JUMPING_SPEED;
-		jumping = true;
+		//jumping = true;
 	}
-	else currentJumpSpeed = 0.f;
+	if (keys[MOVE_DOWN])
+	{
+		//potentialY += -JUMPING_SPEED;
+	}
 
 	if (keys[MOVE_FORWARD] == true)
 	{
 		currentWalkingSpeedX = WALKING_SPEED;
 	}
-	else if (keys[MOVE_BACKWARD] == true)
+	if (keys[MOVE_BACKWARD] == true)
 	{
 		currentWalkingSpeedX = -WALKING_SPEED;
 	}
-	else currentWalkingSpeedX = 0.f;
 
 	if (keys[MOVE_LEFT] == true)
 	{
 		currentWalkingSpeedZ = -WALKING_SPEED;
 	}
-	else if (keys[MOVE_RIGHT] == true)
+	if (keys[MOVE_RIGHT] == true)
 	{
 		currentWalkingSpeedZ = WALKING_SPEED;
 	}
-	else currentWalkingSpeedZ = 0.f;
 
-	float distance = 0.f, dX = 0.f, dZ = 0.f;
+	float dX = 0.f, dZ = 0.f;
 
-	float mX = currentWalkingSpeedX * deltaTime;
+	float mX = currentWalkingSpeedX *deltaTime;
 	float mZ = currentWalkingSpeedZ * deltaTime;
 
 	dX += (float)(mX * sin(rotationDegree));
@@ -194,15 +214,20 @@ void Player::move(bool keys[], float deltaTime)
 	dX += (float)(mZ * -cos(rotationDegree));
 	dZ += (float)(mZ * sin(rotationDegree));
 
-	currentJumpSpeed += GRAVITY * deltaTime;
+	float dY = (currentJumpSpeed + GRAVITY) *deltaTime;
 
-	increasePosition(glm::vec3(dX, currentJumpSpeed, dZ));
+	currentWalkingSpeedX = dX;
+	currentJumpSpeed = dY;
+	currentWalkingSpeedZ = dZ;
+
+
+	increasePosition(glm::vec3(dX, dY, dZ));
 
 	if (position.y < -4.9f)
 		available = false;
 
 	if (position.y < LIMIT) {
-		currentJumpSpeed = 0.f;
+		dY = 0.f;
 		position.y = LIMIT;
 		jumping = false;
 	}

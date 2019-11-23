@@ -139,6 +139,8 @@
     <None Include="Objects\Enemy\Earth_Golem_OBJ.mtl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
+    <None Include="Shaders\aabb.frag" />
+    <None Include="Shaders\aabb.vert" />
     <None Include="Shaders\block.frag" />
     <None Include="Shaders\block.vert" />
     <None Include="Shaders\lightblock.frag" />

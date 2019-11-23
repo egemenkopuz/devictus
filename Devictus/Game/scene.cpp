@@ -92,21 +92,62 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 	this->playerCamera = new Camera3rdPerson(this->player);
 }
 
-void Scene::draw()
+void Scene::draw(bool aabbDebug)
 {
 	for (auto iter : sceneGraph) {
 		if (iter->isAvailable()) {
+			if (aabbDebug)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				Shader shader = Manager::getShader("aabb");
+				shader.use();
+				if (iter->currentAABB.isCollided()) 
+					shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+				else 
+					shader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+				shader.setMat4("model", iter->getAABBTransform());
+				iter->drawAABB(shader);
+			}
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			Shader shader = Manager::getShader(iter->getType());
 			shader.use();
 			shader.setMat4("model", iter->getTransform());
-			iter->drawModel(shader);
+			iter->drawModel(shader);	
 		}
 	}
+
+	if (aabbDebug)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		Shader shader = Manager::getShader("aabb");
+		shader.use();
+		if (player->currentAABB.isCollided())
+			shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+		else
+			shader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+		shader.setMat4("model", player->getAABBTransform());
+		player->drawAABB(shader);
+	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	Shader shader = Manager::getShader(player->getType());
 	shader.use();
 	shader.setMat4("model", player->getTransform());
 	player->drawModel(shader);
 
+
+	if (aabbDebug)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		Shader shader = Manager::getShader("aabb");
+		shader.use();
+		if (enemy->currentAABB.isCollided())
+			shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+		else
+			shader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+		shader.setMat4("model", enemy->getAABBTransform());
+		enemy->drawAABB(shader);
+	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	shader = Manager::getShader(enemy->getType());
 	shader.use();
 	shader.setMat4("model", enemy->getTransform());

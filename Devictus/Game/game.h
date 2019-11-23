@@ -26,6 +26,8 @@ public:
 	void render(float deltaTime);
 
 	bool isTerminated();
+
+	bool aabbDebug = false;
 private:
 	Camera * freeCamera;
 	Camera3rdPerson * playerCamera;
@@ -41,6 +43,7 @@ private:
 
 	float menuSelectionBarrierVal;
 	bool menuSelectionBarrier;
+
 	bool terminated;
 	bool paused = false;
 
