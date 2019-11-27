@@ -36,7 +36,7 @@ public:
 	glm::vec3 calculateCenter()
 	{
 		float totX = 0.f, totY = 0.f, totZ = 0.f;
-		float count = 0;
+		float count = 0.f;
 
 		for (auto& iter : meshes)
 		{

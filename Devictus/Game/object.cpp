@@ -84,39 +84,9 @@ bool GameObject::isDestructable()
 	return destructable;
 }
 
-bool GameObject::isAvailable()
-{
-	return available;
-}
-
 std::string GameObject::getType()
 {
 	return type;
-}
-
-void GameObject::setHealth(int hp, bool add)
-{
-	if (add)
-		health += hp;
-	else health = hp;
-}
-
-int GameObject::getHealth()
-{
-	return health;
-}
-
-bool GameObject::getDamage(int damage)
-{
-	if (destructable) {
-		health -= damage;
-		if (health <= 0) {
-			available = false;
-			return false;
-		}
-		return true;
-	}
-	return true;
 }
 
 void GameObject::drawAABB(Shader shader)
@@ -170,142 +140,6 @@ void GameObject::addChild(GameObject * child)
 	child->attachParent(this);
 	children.push_back(child);
 }
-void Player::move(bool keys[], float deltaTime)
-{
-	currentJumpSpeed = 0.f;
-	currentWalkingSpeedX = 0.f;
-	currentWalkingSpeedZ = 0.f;
-	if (keys[MOVE_UP] == true && !jumping)
-	{
-		currentJumpSpeed = JUMPING_SPEED;
-		//jumping = true;
-	}
-	if (keys[MOVE_DOWN])
-	{
-		//potentialY += -JUMPING_SPEED;
-	}
-
-	if (keys[MOVE_FORWARD] == true)
-	{
-		currentWalkingSpeedX = WALKING_SPEED;
-	}
-	if (keys[MOVE_BACKWARD] == true)
-	{
-		currentWalkingSpeedX = -WALKING_SPEED;
-	}
-
-	if (keys[MOVE_LEFT] == true)
-	{
-		currentWalkingSpeedZ = -WALKING_SPEED;
-	}
-	if (keys[MOVE_RIGHT] == true)
-	{
-		currentWalkingSpeedZ = WALKING_SPEED;
-	}
-
-	float dX = 0.f, dZ = 0.f;
-
-	float mX = currentWalkingSpeedX *deltaTime;
-	float mZ = currentWalkingSpeedZ * deltaTime;
-
-	dX += (float)(mX * sin(rotationDegree));
-	dZ += (float)(mX * cos(rotationDegree));
-
-	dX += (float)(mZ * -cos(rotationDegree));
-	dZ += (float)(mZ * sin(rotationDegree));
-
-	float dY = (currentJumpSpeed + GRAVITY) *deltaTime;
-
-	currentWalkingSpeedX = dX;
-	currentJumpSpeed = dY;
-	currentWalkingSpeedZ = dZ;
-
-
-	increasePosition(glm::vec3(dX, dY, dZ));
-
-	if (position.y < -4.9f)
-		available = false;
-
-	if (position.y < LIMIT) {
-		dY = 0.f;
-		position.y = LIMIT;
-		jumping = false;
-	}
-}
-
-void Player::rotate(float xoffset, float yoffset, float deltaTime)
-{
-	xoffset *= -MOUSE_SENSITIVITY;
-	rotationDegree += xoffset * deltaTime;
-}
-
-Player::Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model) {
-	this->type = "block";
-	this->transformed = true;
-	this->position = position;
-	this->rotationDegree = rotationDegree;
-	this->scale = scale;
-	this->health = 100;
-	this->casting = false;
-	this->destructable = true;
-	this->available = true;
-	this->model = model;
-
-	this->currentWalkingSpeedZ = 0.f;
-	this->currentTurnSpeed = 0.f;
-	this->currentJumpSpeed = 0.f;
-	this->currentWalkingSpeedX = 0.f;
-
-	this->jumping = false;
-
-	this->rotX = 0.f;
-	this->rotY = 1.f;
-	this->rotZ = 0.f;
-
-	this->currentAABB = model->aabb;
-}
-
-void Player::transform() {
-
-}
-
-void Enemy::action(float deltaTime)
-{
-	// TODO action against player
-
-
-
-
-	prevDeltaTime = deltaTime;
-}
-
-void Enemy::attachPlayer(Player * player)
-{
-	this->player = player;
-}
-
-Enemy::Enemy(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model) {
-	this->type = "block";
-	this->transformed = true;
-	this->position = position;
-	this->rotationDegree = rotationDegree;
-	this->scale = scale;
-	this->health = 100;
-	this->casting = false;
-	this->destructable = true;
-	this->available = true;
-	this->model = model;
-
-	this->rotX = 0.f;
-	this->rotY = 1.f;
-	this->rotZ = 0.f;
-
-	this->currentAABB = model->aabb;
-}
-
-void Enemy::transform() {
-
-}
 
 Block::Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model, bool destructable) {
 	this->type = "block";
@@ -317,12 +151,34 @@ Block::Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * 
 	this->available = true;
 	this->model = model;
 
+	this->durability = 100;
+
 	this->rotX = 0.f;
 	this->rotY = 1.f;
 	this->rotZ = 0.f;
 
 	this->currentAABB = model->aabb;
 }
-void Block::transform() {
 
+bool Block::increaseLife(float v)
+{
+	durability += v;
+	if (durability <= 0.f)
+		return false;
+	else return true;
+}
+
+bool Block::decreaseLife(float v)
+{
+	durability -= v;
+	if (durability <= 0.f)
+		return false;
+	else return true;
+}
+
+bool Block::isAvailable()
+{
+	if (durability <= 0.f || !available)
+		return false;
+	else return true;
 }

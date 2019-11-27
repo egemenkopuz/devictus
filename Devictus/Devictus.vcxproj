@@ -151,17 +151,23 @@
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\object.frag" />
     <None Include="Shaders\object.vert" />
+    <None Include="Shaders\particle.frag" />
+    <None Include="Shaders\particle.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\engine.cpp" />
     <ClCompile Include="Engine\manager.cpp" />
     <ClCompile Include="Engine\mesh.cpp" />
+    <ClCompile Include="Engine\particle.cpp" />
     <ClCompile Include="Engine\shader.cpp" />
     <ClCompile Include="Engine\text.cpp" />
     <ClCompile Include="Engine\texture.cpp" />
     <ClCompile Include="Game\camera.cpp" />
+    <ClCompile Include="Game\enemy.cpp" />
     <ClCompile Include="Game\game.cpp" />
     <ClCompile Include="Game\object.cpp" />
+    <ClCompile Include="Game\player.cpp" />
+    <ClCompile Include="Game\projectile.cpp" />
     <ClCompile Include="Game\scene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utilities\glad.c" />
@@ -184,12 +190,16 @@
     <ClInclude Include="Engine\manager.h" />
     <ClInclude Include="Engine\mesh.h" />
     <ClInclude Include="Engine\model.h" />
+    <ClInclude Include="Engine\particle.h" />
     <ClInclude Include="Engine\shader.h" />
     <ClInclude Include="Engine\text.h" />
     <ClInclude Include="Engine\texture.h" />
     <ClInclude Include="Game\camera.h" />
+    <ClInclude Include="Game\enemy.h" />
     <ClInclude Include="Game\game.h" />
     <ClInclude Include="Game\object.h" />
+    <ClInclude Include="Game\player.h" />
+    <ClInclude Include="Game\projectile.h" />
     <ClInclude Include="Game\scene.h" />
     <ClInclude Include="Utilities\definitions.h" />
   </ItemGroup>
@@ -199,6 +209,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Object>
     <Object Include="Objects\Enemy\Earth_Golem_OBJ.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="Objects\Projectile\sphere.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Object>
   </ItemGroup>

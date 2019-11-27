@@ -47,6 +47,7 @@ struct SpotLight {
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
+in float Durability;
 
 uniform vec3 viewPos;
 uniform DirLight dirLight;
@@ -69,8 +70,8 @@ void main()
     // phase 2: point lights
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir); 
-    
-    FragColor = vec4(result, 1.0);
+	
+    FragColor = vec4(result.x * Durability,result.y,result.z, 1.0);
 }
 
 // calculates the color when using a directional light.

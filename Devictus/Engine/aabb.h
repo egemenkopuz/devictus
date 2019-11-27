@@ -135,29 +135,40 @@ public:
 			float minX = center.x, minY = center.y, minZ = center.z;
 			float maxX = center.x, maxY = center.y, maxZ = center.z;*/
 
-		float minX = pos.x, minY = pos.y, minZ = pos.z;
-		float maxX = pos.x, maxY = pos.y, maxZ = pos.z;
+		float minX, minY, minZ;
+		float maxX, maxY, maxZ;
 
 		//float minX, minY, minZ, maxX, maxY, maxZ;
 		//bool firstCheck = true;
 
+		bool first = true;
 		for (auto& iter : vertices)
 		{
 
 			iter = transformMatrix * glm::vec4(iter, 1.f);
 
-			if (iter.x < minX)
-				minX = iter.x;
-			if (iter.x > maxX)
-				maxX = iter.x;
-			if (iter.y < minY)
-				minY = iter.y;
-			if (iter.y > maxY)
-				maxY = iter.y;
-			if (iter.z < minZ)
-				minZ = iter.z;
-			if (iter.z > maxZ)
-				maxZ = iter.z;
+			if (first)
+			{
+				maxX = minX = iter.x;
+				maxY = minY = iter.y;
+				maxZ = minZ = iter.z;
+				first = false;
+			}
+			else
+			{
+				if (iter.x < minX)
+					minX = iter.x;
+				if (iter.x > maxX)
+					maxX = iter.x;
+				if (iter.y < minY)
+					minY = iter.y;
+				if (iter.y > maxY)
+					maxY = iter.y;
+				if (iter.z < minZ)
+					minZ = iter.z;
+				if (iter.z > maxZ)
+					maxZ = iter.z;
+			}
 		}
 
 		this->height = abs(pos.y - minY);
@@ -167,7 +178,7 @@ public:
 		this->minExtent = glm::vec3(minX, minY, minZ);
 		this->maxExtent = glm::vec3(maxX, maxY, maxZ);
 
-		this->collided = false;
+		//this->collided = false;
 	}
 
 	Collision intersectAABB(AABB& other)

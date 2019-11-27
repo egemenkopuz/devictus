@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "object.h"
+#include "player.h"
 
 enum CameraMovement {FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN, NONE};
 

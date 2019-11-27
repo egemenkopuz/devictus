@@ -4,7 +4,10 @@
 #include "../Engine/manager.h"
 
 #include "camera.h"
-#include "object.h"
+
+#include "enemy.h"
+#include "player.h"
+#include "projectile.h"
 
 #include <vector>
 #include <string>
@@ -24,7 +27,6 @@ public:
 
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
 	void draw(bool aabbDebug);
-	void drawShadows();
 
 	Camera * freeCamera;
 	Camera3rdPerson * playerCamera;
@@ -32,10 +34,13 @@ public:
 	Enemy * enemy;
 
 	std::vector<GameObject*> sceneGraph;
+
+	Model * getPModel() { return projectileModel; }
 private:
 	Model * blockModel;
 	Model * playerModel;
 	Model * enemyModel;
+	Model * projectileModel;
 
 	float blockLength;
 	LevelDifficulty levelDifficulty;

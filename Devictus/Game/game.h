@@ -1,13 +1,13 @@
 #include "../Utilities/definitions.h"
 #include "../Engine/manager.h"
 #include "../Engine/text.h"
+#include "../Engine/particle.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "scene.h"
-
 
 enum GameState { GAME_MENU, GAME_ACTIVE, GAME_WIN, GAME_LOSE, GAME_EXIT };
 

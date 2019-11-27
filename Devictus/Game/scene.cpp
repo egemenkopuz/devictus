@@ -15,21 +15,28 @@ Scene::~Scene()
 	delete this->player;
 	delete this->enemy;
 
-	for (auto iter : sceneGraph)
-		delete iter;
+	//for (auto iter : sceneGraph)
+	//	delete &iter;
 	sceneGraph.clear();
+
+	//for (auto iter : projectiles)
+	//	delete &iter;
 
 	delete this->blockModel;
 	delete this->enemyModel;
 	delete this->playerModel;
+	delete this->projectileModel;
 }
 
 void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 {
 	this->blockModel = new Model("./Objects/Block/block.obj");
 	this->enemyModel = new Model("./Objects/Enemy/Earth_Golem_OBJ.obj");
-	//this->playerModel = new Model("./Objects/Enemy/Earth_Golem_OBJ.obj");
-	this->playerModel = this->blockModel;
+	this->playerModel = new Model("./Objects/Enemy/Earth_Golem_OBJ.obj");
+	//this->playerModel = this->blockModel;
+
+	this->projectileModel = new Model("./Objects/Block/block.obj");
+	//this->projectileModel = new Model("./Objects/Projectile/sphere.obj");
 
 	LevelInfo levelInfo = readLevelFromFile(levelPath);
 	this->levelDifficulty = levelDifficulty;
@@ -81,12 +88,14 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 			}
 		}
 	}
-
+	
 	//this->player = new Player(glm::vec3(0.0f, 1.0f * blockLength, 4.0f * blockLength), 0.f, glm::vec3(0.2f), playerModel);
-	this->player = new Player(glm::vec3(0.0f, 10.0f * blockLength, -4.0f * blockLength), 0.f, glm::vec3(0.2f), playerModel);
-	this->enemy = new Enemy(glm::vec3(0.0f, 0.5f * blockLength, 0.0f), 0.f, glm::vec3(0.3f), enemyModel);
+	this->player = new Player(glm::vec3(0.0f, 5.f * blockLength, -8.0f * blockLength), 0.f, glm::vec3(0.5f), playerModel);
+	this->player->attachProjectileModel(this->projectileModel);
 
+	this->enemy = new Enemy(glm::vec3(0.0f, enemyModel->aabb.getMaxExtent().y, 0.0f), 0.f, glm::vec3(1.0f), enemyModel);
 	this->enemy->attachPlayer(this->player);
+	this->enemy->attachProjectileModel(this->projectileModel);
 
 	this->freeCamera = new Camera(glm::vec3(0.0f, 2.0f * blockLength, 5.0f * blockLength));
 	this->playerCamera = new Camera3rdPerson(this->player);
@@ -113,47 +122,131 @@ void Scene::draw(bool aabbDebug)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			Shader shader = Manager::getShader(iter->getType());
 			shader.use();
+			float life = iter->getLife();
+			shader.setFloat("durability", life);
 			shader.setMat4("model", iter->getTransform());
 			iter->drawModel(shader);	
 		}
 	}
 
-	if (aabbDebug)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	for (Projectile * iter : enemy->projectiles)
 	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		Shader shader = Manager::getShader("aabb");
-		shader.use();
-		if (player->currentAABB.isCollided())
-			shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
-		else
-			shader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
-		shader.setMat4("model", player->getAABBTransform());
-		player->drawAABB(shader);
+		if (iter->isAvailable())
+		{
+			ProjectileEffect effect = iter->getEffect();
+			glm::vec3 color(0.f);
+			if (effect == ATTACKER) color = glm::vec3(1.f, 0.f, 0.f);
+			else if (effect == JUMPER) color = glm::vec3(0.3f, 0.f, 1.f);
+			else if (effect == PUSHER) color = glm::vec3(1.f, 1.f, 0.f);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			Shader shader = Manager::getShader("aabb");
+			shader.use();
+			shader.setVec3("color", color);
+			shader.setMat4("model", iter->getAABBTransform());
+			iter->drawAABB(shader);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			shader = Manager::getShader(iter->getType());
+			shader.use();
+			shader.setFloat("durability", 1.f);
+			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader); 
+
+			/*if (aabbDebug)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				Shader shader = Manager::getShader("aabb");
+				shader.use();
+				if (iter->currentAABB.isCollided())
+					shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+				else
+					shader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+				shader.setMat4("model", iter->getAABBTransform());
+				iter->drawAABB(shader);
+			}
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			Shader shader = Manager::getShader(iter->getType());
+			shader.use();
+			shader.setFloat("durability", 1.f);
+ 			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader);*/
+		}
 	}
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	Shader shader = Manager::getShader(player->getType());
-	shader.use();
-	shader.setMat4("model", player->getTransform());
-	player->drawModel(shader);
 
-
-	if (aabbDebug)
+	for (Projectile * iter : player->projectiles)
 	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		Shader shader = Manager::getShader("aabb");
-		shader.use();
-		if (enemy->currentAABB.isCollided())
-			shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
-		else
-			shader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
-		shader.setMat4("model", enemy->getAABBTransform());
-		enemy->drawAABB(shader);
+		if (iter->isAvailable())
+		{
+			ProjectileEffect effect = iter->getEffect();
+			glm::vec3 color(0.f);
+			if (effect == ATTACKER) color = glm::vec3(1.f, 0.f, 0.f);
+			else if (effect == JUMPER) color = glm::vec3(0.3f, 0.f, 1.f);
+			else if (effect == PUSHER) color = glm::vec3(1.f, 1.f, 0.f);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			Shader shader = Manager::getShader("aabb");
+			shader.use();
+			shader.setVec3("color", color);
+			shader.setMat4("model", iter->getAABBTransform());
+			iter->drawAABB(shader);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			shader = Manager::getShader(iter->getType());
+			shader.use();
+			shader.setFloat("durability", 1.f);
+			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader);
+		}
 	}
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	shader = Manager::getShader(enemy->getType());
-	shader.use();
-	shader.setMat4("model", enemy->getTransform());
-	enemy->drawModel(shader);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (player->isAvailable())
+	{
+		Shader shader;
+		if (aabbDebug)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			shader = Manager::getShader("aabb");
+			shader.use();
+			if (player->currentAABB.isCollided())
+				shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+			else
+				shader.setVec3("color", glm::vec3(0.f, 0.f, 1.f));
+			shader.setMat4("model", player->getAABBTransform());
+			player->drawAABB(shader);
+		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		shader = Manager::getShader(player->getType());
+		shader.use();
+		shader.setFloat("durability", 1.f);
+		shader.setMat4("model", player->getTransform());
+		player->drawModel(shader);
+	}
+
+	if (enemy->isAvailable())
+	{
+		Shader shader;
+		if (aabbDebug)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			shader = Manager::getShader("aabb");
+			shader.use();
+			if (enemy->currentAABB.isCollided())
+				shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+			else
+				shader.setVec3("color", glm::vec3(1.0f, 1.0f, 0.0f));
+			shader.setMat4("model", enemy->getAABBTransform());
+			enemy->drawAABB(shader);
+		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		shader = Manager::getShader(enemy->getType());
+		shader.use();
+		shader.setFloat("durability", 1.f);
+		shader.setMat4("model", enemy->getTransform());
+		enemy->drawModel(shader);
+	}
 }
 
 LevelInfo Scene::readLevelFromFile(const char * levelPath)

@@ -96,6 +96,12 @@
     <None Include="Shaders\object.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\particle.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\particle.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -130,6 +136,18 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Engine\text.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\player.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\enemy.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\projectile.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\particle.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -190,6 +208,18 @@
     <ClInclude Include="Engine\intersection.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Game\player.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\projectile.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\particle.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Objects\Block\block.obj">
@@ -197,6 +227,9 @@
     </Object>
     <Object Include="Objects\Enemy\Earth_Golem_OBJ.obj">
       <Filter>Objects\Enemy</Filter>
+    </Object>
+    <Object Include="Objects\Projectile\sphere.obj">
+      <Filter>Objects\Projectiles\Projectile0</Filter>
     </Object>
   </ItemGroup>
 </Project>
