@@ -12,7 +12,7 @@ enum ProjectileType {
 enum ProjectileEffect {
 	ATTACKER, 
 	PUSHER, 
-	JUMPER,
+	PULLER,
 };
 
 class Projectile : public GameObject {

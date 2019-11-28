@@ -57,12 +57,6 @@
     <None Include="Shaders\light.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\lightblock.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\lightblock.frag">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Levels\challenger.lvl">
       <Filter>Levels</Filter>
     </None>
@@ -100,6 +94,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\particle.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\projectile.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\projectile.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

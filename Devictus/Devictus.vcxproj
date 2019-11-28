@@ -145,8 +145,8 @@
     <None Include="Shaders\block.vert" />
     <None Include="Shaders\depth.frag" />
     <None Include="Shaders\depth.vert" />
-    <None Include="Shaders\lightblock.frag" />
-    <None Include="Shaders\lightblock.vert" />
+    <None Include="Shaders\projectile.frag" />
+    <None Include="Shaders\projectile.vert" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\object.frag" />

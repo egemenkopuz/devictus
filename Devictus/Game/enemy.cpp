@@ -1,41 +1,116 @@
 #include "enemy.h"
 #include <GLFW/glfw3.h>
 
+bool Enemy::checkPhase()
+{
+	if (castType == 3 && health > 30.f)
+		return true;
+
+
+
+	return false;
+}
+
 void Enemy::action(float deltaTime)
 {
 	// rotates according to the player
 
 	glm::vec3 diff = player->getPosition() - position;
-	rotationDegree = glm::orientedAngle(glm::vec2(diff.x,diff.z),glm::vec2(0.f, 1.f));
+	rotationDegree = glm::orientedAngle(glm::vec2(diff.x, diff.z), glm::vec2(0.f, 1.f));
 	transformed = true;
 
 
 	// deciding attack type
 	if (castType == -1) // deciding
 	{
-		castType = rand() % 3;
+		do {
+			castType = rand() % 4;
+		} while (checkPhase());
+
 		effectType = rand() % 3;
 		firstInit = true;
 	}
-	
-	if (castType == 2) // random projectiles
+
+	if (castType == 3)
 	{
-		if (firstInit) { cons = 20; firstInit = false; castBarrier = 0.f; }
+		if (firstInit)
+		{
+			cons = 10;
+			firstInit = false;
+			castBarrier = 0.f;
+			rand() % 2 == 0 ? randomFlag = false : randomFlag = true;
+		}
 
 		if (castBarrier < deltaTime)
 		{
-			dX = sin(glfwGetTime()) * 20.f;
-			dZ = cos(glfwGetTime()) * 20.f;
+			dX = sin(glfwGetTime());
+			dZ = cos(glfwGetTime());
 
 			glm::vec3 v = glm::normalize(glm::vec3(dX, 0.f, dZ)) * 3.f;
 
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f), 
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, 0.f));
+
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, -0.f));
+
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, 0.f, 0.f, v.z));
+
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, 0.f, 0.f, -v.z));
+
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
 				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, v.z));
 
 			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
 				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, -v.z));
 
-			castBarrier = deltaTime *2.f;
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, v.z));
+
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, -v.z));
+
+
+			castBarrier = deltaTime * 2.f;
+			cons--;
+		}
+		else  castBarrier -= deltaTime;
+
+	}
+	else if (castType == 2) // random projectiles
+	{
+		if (firstInit)
+		{
+			cons = 20;
+			firstInit = false;
+			castBarrier = 0.f;
+			rand() % 2 == 0 ? randomFlag = false : randomFlag = true;
+		}
+
+		if (castBarrier < deltaTime)
+		{
+			if (randomFlag)
+			{
+				dX = cos(glfwGetTime()) * 20.f;
+				dZ = sin(glfwGetTime()) * 20.f;
+			}
+			else
+			{
+				dX = sin(glfwGetTime()) * 20.f;
+				dZ = cos(glfwGetTime()) * 20.f;
+			}
+
+			glm::vec3 v = glm::normalize(glm::vec3(dX, 0.f, dZ)) * 3.f;
+
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, v.z));
+
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f),
+				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, -v.z));
+
+			castBarrier = deltaTime * 2.f;
 			cons--;
 		}
 		else castBarrier -= deltaTime;
@@ -50,7 +125,7 @@ void Enemy::action(float deltaTime)
 			//t.y += player->currentAABB.height;
 			glm::vec3 target = glm::normalize(t - position) * 4.f;
 
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f),
 				projectileModel, BULLET, (ProjectileEffect)effectType, true, target.x, target.y, target.z));
 
 			castBarrier = deltaTime * 15.f;
@@ -65,7 +140,7 @@ void Enemy::action(float deltaTime)
 		if (castBarrier < deltaTime)
 		{
 			projectiles.push_back(new Projectile(glm::vec3(player->getPosition().x, player->getPosition().y + 3.f, player->getPosition().z), 0.f, glm::vec3(0.5f),
-				projectileModel, AREA_OF_EFFECT, (ProjectileEffect)effectType, false, 0.f, -3.f, 0.f));
+				projectileModel, AREA_OF_EFFECT, (ProjectileEffect)effectType, true, 0.f, -1.f, 0.f));
 
 			castBarrier = deltaTime * 15.f;
 			cons--;
@@ -90,7 +165,7 @@ void Enemy::attachProjectileModel(Model * model)
 }
 
 Enemy::Enemy(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model) {
-	
+
 	this->type = "block";
 	this->transformed = true;
 	this->position = position;

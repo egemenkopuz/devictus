@@ -87,7 +87,7 @@ void Player::move(bool keys[], float deltaTime)
 	}
 	else meleeBarrier -= deltaTime;
 	
-	if (keys[MOVE_MOUSE_LEFT] == true && !attacked)
+	if (keys[MOVE_MOUSE_RIGHT] == true && !attacked)
 	{
 		meleeBarrier = 60.f *deltaTime;
 		attacked = true;

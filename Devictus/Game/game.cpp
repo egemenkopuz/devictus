@@ -48,6 +48,7 @@ void Game::processKey(KEY key, float deltaTime)
 			this->playerCamera = scene.playerCamera;
 
 			state = GAME_ACTIVE;
+			paused = true;
 			break;
 		case KEY_W:
 			if (currentDiff == GOD)
@@ -127,10 +128,8 @@ void Game::processKey(KEY key, float deltaTime)
 
 void Game::init()
 {
-
-	std::cout << "GAME:INITILIZATION" << std::endl;
 	Manager::loadShader("./Shaders/block.vert", "./Shaders/block.frag", "block");
-	Manager::loadShader("./Shaders/lightblock.vert", "./Shaders/lightblock.frag", "projectile");
+	Manager::loadShader("./Shaders/projectile.vert", "./Shaders/projectile.frag", "projectile");
 	Manager::loadShader("./Shaders/text.vert", "./Shaders/text.frag", "text");
 	Manager::loadShader("./Shaders/aabb.vert", "./Shaders/aabb.frag", "aabb");
 
@@ -320,7 +319,16 @@ void Game::checkCollisions(float deltaTime)
 {
 	bool intersectedFaces[6] = { 0,0,0,0,0,0 };
 	
-	// TODO MELEE ATTACK CHECK
+	// player melee attack vs enemy
+
+	if (player->doingMeleeAttack())
+	{
+		Collision playerMeleeCollision = player->currentAABB.intersectAABB(enemy->currentAABB);
+		if (std::get<0>(playerMeleeCollision))
+		{
+			enemy->decreaseLife(20.f);
+		}
+	}
 
 	// enemy vs players's projectiles
 	Collision enemyProjectileCollision;
@@ -334,7 +342,7 @@ void Game::checkCollisions(float deltaTime)
 				projectile->decreaseLife(1.f);
 
 				ProjectileEffect effect = projectile->getEffect();
-				enemy->decreaseLife(1.f);
+				enemy->decreaseLife(2.f);
 			}
 		}
 	}
@@ -365,16 +373,15 @@ void Game::checkCollisions(float deltaTime)
 					}
 					else if (e == PUSHER)
 					{
-						//CollisionDirection dir = std::get<1>(playerProjectileCollision);
-						//glm::vec3 normal = std::get<2>(playerProjectileCollision);
-
-						glm::vec3 diff = -(enemy->getPosition() - player->getPosition());// *-deltaTime;
+						glm::vec3 diff = -glm::normalize(enemy->getPosition() - player->getPosition()) * 0.8f;
 
 						player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
 					}
-					else if (e == JUMPER)
+					else if (e == PULLER)
 					{
-						player->increasePosition(glm::vec3(0.f, 1.f, 0.f));
+						glm::vec3 diff = glm::normalize(enemy->getPosition() - player->getPosition()) * 0.4f;
+
+						player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
 					}
 				}
 			}
@@ -401,8 +408,8 @@ void Game::checkCollisions(float deltaTime)
 						float damage;
 						ProjectileType t = projectile->getProjectileType();
 						ProjectileEffect e = projectile->getEffect();
-						if (t == BULLET && e == ATTACKER) damage = 20.f;
-						else if (t == AREA_OF_EFFECT && e == ATTACKER) damage = 10.f;
+						if (t == BULLET && e == ATTACKER) damage = 50.f;
+						else if (t == AREA_OF_EFFECT) damage = 100.f;
 						else if (t == RANDOM && e == ATTACKER) damage = 2.f;
 						else damage = 0.f;
 

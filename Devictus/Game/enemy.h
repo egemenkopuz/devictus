@@ -12,6 +12,8 @@ private:
 	int castType = -1;
 	int effectType = -1;
 
+	bool randomFlag = false;
+
 	Player * player;
 	Model * projectileModel;
 
@@ -22,6 +24,8 @@ private:
 
 	bool firstInit = true;
 	int cons = 0;
+
+	bool checkPhase();
 public:
 	std::vector<Projectile*> projectiles;
 	void attachProjectileModel(Model * model);
