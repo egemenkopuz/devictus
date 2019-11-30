@@ -128,11 +128,27 @@ void Game::processKey(KEY key, float deltaTime)
 
 void Game::init()
 {
+	Manager::loadTexture("./Textures/object.jpg", "object");
+	Manager::loadTexture("./Textures/wall.jpg", "wall");
+	Manager::loadTexture("./Textures/container.jpg", "projectile");
+
 	Manager::loadShader("./Shaders/block.vert", "./Shaders/block.frag", "block");
 	Manager::loadShader("./Shaders/projectile.vert", "./Shaders/projectile.frag", "projectile");
 	Manager::loadShader("./Shaders/text.vert", "./Shaders/text.frag", "text");
 	Manager::loadShader("./Shaders/aabb.vert", "./Shaders/aabb.frag", "aabb");
+	
+	// exp
+	Manager::loadShader("./Shaders/depth.vert", "./Shaders/depth.frag", "depth");
+	Shader objectShader = Manager::loadShader("./Shaders/object.vert", "./Shaders/object.frag", "object");
+	objectShader.use();
+	objectShader.setInt("diffuseTexture", 0);
+	objectShader.setInt("shadowMap", 1);
 
+	Shader quadShader = Manager::loadShader("./Shaders/debugQuad.vert", "./Shaders/debugQuad.frag", "quad");
+	quadShader.use();
+	quadShader.setInt("depthMap", 0);
+	// exp
+	
 	Shader blockShader = Manager::getShader("block");
 	blockShader.use();
 	blockShader.setFloat("material.shininess", 32.0f);
@@ -158,6 +174,9 @@ void Game::init()
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT));
 	textShader.use();
 	glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+	shadowMap = ShadowMap();
+	shadowMap.init();
 
 	textRenderer = new TextRenderer("text");
 
@@ -250,7 +269,8 @@ void Game::render(float deltaTime)
 	switch (state) {
 	case GAME_MENU:
 		// Text rendering
-
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		textRenderer->renderText("DEVICTUS", 650.f, 800.f, 2.0f, glm::vec3(1.0, 0.0f, 0.0f));
 		textRenderer->renderText("Choose Difficulty", 800.f, gameHeight / 2.5f, 0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
 		if (currentDiff == PEASANT)
@@ -280,8 +300,69 @@ void Game::render(float deltaTime)
 			position = playerCamera->getPosition();
 		}
 
+		////////////////////// exp
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+	
+		lightProjection = glm::perspective(glm::radians(120.f), (GLfloat)1024 / (GLfloat)1024, shadowMap.near_plane, shadowMap.far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+		//lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, shadowMap.near_plane, shadowMap.far_plane);
+		lightView = glm::lookAt(glm::vec3(0.f,4.f,0.f), glm::vec3(0.f,0.f,0.f), glm::vec3(1.f, 0.0f, 1.0f));
+		lightSpaceMatrix = lightProjection * lightView;
+
+		Shader depthShader = Manager::getShader("depth");
+		depthShader.use();
+		depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+		glDisable(GL_CULL_FACE);
+		glViewport(0, 0, 1024, 1024);
+		shadowMap.bindForWriting();
+		glClear(GL_DEPTH_BUFFER_BIT);
+		/*glActiveTexture(GL_TEXTURE0);
+		Manager::getTexture("object").bind();*/
+		this->scene.drawShadowMap(depthShader);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glEnable(GL_CULL_FACE);
+		glViewport(0, 0, 1920, 1080);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		Shader objectShader = Manager::getShader("object");
+		objectShader.use();
+		objectShader.setMat4("projection", projection);
+		objectShader.setMat4("view", view);
+		objectShader.setVec3("viewPos", position);
+		objectShader.setVec3("lightPos", glm::vec3(0.f, 3.5f, 0.f));
+		objectShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		shadowMap.bindForReading(GL_TEXTURE1);
+
+		if (aabbDebug)
+		{
+			Shader aabbShader = Manager::getShader("aabb");
+			aabbShader.use();
+			aabbShader.setMat4("projection", projection);
+			aabbShader.setMat4("view", view);
+		}
+		
+		Shader projectileShader = Manager::getShader("projectile");
+		projectileShader.use();
+		projectileShader.setMat4("projection", projection);
+		projectileShader.setMat4("view", view);
+
+		this->scene.drawScene(objectShader,aabbDebug);
+
+		// DEBUG
+
+		/*Shader quadShader = Manager::getShader("quad");
+		quadShader.use();
+		quadShader.setFloat("near_plane", shadowMap.near_plane);
+		quadShader.setFloat("far_plane", shadowMap.far_plane);
+		shadowMap.bindForReading(GL_TEXTURE0);
+
+		this->scene.drawDebugQuad();*/
+
 		// Shader modification
-		Shader blockShader = Manager::getShader("block");
+		/*Shader blockShader = Manager::getShader("block");
 		blockShader.use();
 		blockShader.setVec3("viewPos", position);
 		blockShader.setMat4("projection", projection);
@@ -292,25 +373,26 @@ void Game::render(float deltaTime)
 		aabbShader.setMat4("projection", projection);
 		aabbShader.setMat4("view", view);
 
-		Shader projectileShader = Manager::getShader("projectile");
-		projectileShader.use();
-		projectileShader.setMat4("projection", projection);
-		projectileShader.setMat4("view", view);
+		*/
 
 		// Rendering the objects
-		this->scene.draw(aabbDebug);
+		//this->scene.draw(aabbDebug);
 
 		// Text rendering
-		if (paused) textRenderer->renderText("PAUSED", 870.f, 512.f, 0.5f, glm::vec3(0.0, 0.0f, 1.0f));
+		if (paused) textRenderer->renderText("PAUSED", 15.f, 60.f, 0.5f, glm::vec3(0.0, 0.0f, 1.0f));
 		textRenderer->renderText("Mephisto %" + std::to_string((int)enemy->getLife()), 870.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f));
 		textRenderer->renderText("FPS:" + std::to_string((int)ceil(1.0f / deltaTime)), 15.f, 1050.f, 0.35f, glm::vec3(1.0, 0.0f, 0.0f));
 		textRenderer->renderText("HEALTH: %" + std::to_string((int)player->getLife()), 15.f, 25.f, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		break;
 	case GAME_WIN:
+		/*glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 		textRenderer->renderText("YOU WIN", 800.f, 500.f, 1.f, glm::vec3(1.0, 0.0f, 0.0f));
 		break;
 	case GAME_LOSE:
+	/*	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 		textRenderer->renderText("YOU LOSE", 800.f, 500.f, 1.f, glm::vec3(1.0, 0.0f, 0.0f));
 		break;
 	}

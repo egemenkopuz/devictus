@@ -33,9 +33,6 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 	this->blockModel = new Model("./Objects/Block/block.obj");
 	this->enemyModel = new Model("./Objects/Enemy/Earth_Golem_OBJ.obj");
 	this->playerModel = new Model("./Objects/Enemy/Earth_Golem_OBJ.obj");
-	//this->playerModel = this->blockModel;
-
-	//this->projectileModel = new Model("./Objects/Block/block.obj");
 	this->projectileModel = new Model("./Objects/Projectile/sphere.obj");
 
 	LevelInfo levelInfo = readLevelFromFile(levelPath);
@@ -67,7 +64,7 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 			if (height != 0) {
 				for (int k = 0; k < height; k++) {
 					float yCoord = -((float)k * blockLength);
-					sceneGraph.push_back(new Block(glm::vec3(xCoord, yCoord, zCoord), 0.f, glm::vec3((float)blockLength), blockModel, destructable));
+					sceneGraph.push_back(new Block(glm::vec3(xCoord, yCoord, zCoord), 0.f, glm::vec3((float)blockLength), blockModel, destructable, "floor"));
 				}
 			}
 		}
@@ -83,7 +80,7 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 			if (height != 0) {
 				for (int k = 0; k < height; k++) {
 					float yCoord = ((float)k * blockLength) + blockLength;
-					sceneGraph.push_back(new Block(glm::vec3(xCoord, yCoord, zCoord), 0.f, glm::vec3((float)blockLength), blockModel, destructable));
+					sceneGraph.push_back(new Block(glm::vec3(xCoord, yCoord, zCoord), 0.f, glm::vec3((float)blockLength), blockModel, destructable, "wall"));
 				}
 			}
 		}
@@ -245,6 +242,297 @@ void Scene::draw(bool aabbDebug)
 			enemy->drawAABB(shader);
 		}
 	}
+}
+
+void Scene::drawShadowMap(Shader shader)
+{
+	Texture wallTexture = Manager::getTexture("wall");
+	Texture objectTexture = Manager::getTexture("object");
+	Texture projectileTexture = Manager::getTexture("projectile");
+
+	for (auto iter : sceneGraph)
+	{
+		if (iter->isAvailable())
+		{
+			shader.use();
+			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader);
+		}
+	}
+
+	for (Projectile * iter : enemy->projectiles)
+	{
+		if (iter->isAvailable())
+		{
+			shader.use();
+			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader);
+		}
+	}
+
+	for (Projectile * iter : player->projectiles)
+	{
+		if (iter->isAvailable())
+		{
+			shader.use();
+			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader);
+		}
+	}
+
+	if (player->isAvailable())
+	{
+		shader.use();
+		shader.setMat4("model", player->getTransform());
+		player->drawModel(shader);
+	}
+
+	if (enemy->isAvailable())
+	{
+		shader.use();
+		shader.setMat4("model", enemy->getTransform());
+		enemy->drawModel(shader);
+	}
+}
+
+void Scene::drawScene(Shader &shader, bool aabbDebug)
+{
+
+	Texture wallTexture = Manager::getTexture("wall");
+	Texture objectTexture = Manager::getTexture("object");
+
+	Shader aabbShader = Manager::getShader("aabb");
+	Shader projectileShader = Manager::getShader("projectile");
+
+	for (auto iter : sceneGraph)
+	{
+		if (iter->isAvailable())
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			shader.use();
+			shader.setMat4("model", iter->getTransform());
+
+			glActiveTexture(GL_TEXTURE0);
+			if (iter->getType() == "wall") wallTexture.bind();
+			else if (iter->getType() == "floor") objectTexture.bind();
+			// TODO ADD MORE VARIETY
+			iter->drawModel(shader);
+
+			if (aabbDebug)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				aabbShader.use();
+				if (iter->currentAABB.isCollided())
+					aabbShader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+				else
+					aabbShader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+				aabbShader.setMat4("model", iter->getAABBTransform());
+				iter->drawAABB(aabbShader);
+			}
+		}
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+	wallTexture.bind();
+	for (Projectile * iter : enemy->projectiles)
+	{
+		if (iter->isAvailable())
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			projectileShader.use();
+
+			glm::vec3 color;
+			if (iter->getEffect() == ATTACKER) color = glm::vec3(1.f, 0.f, 0.f);
+			else if (iter->getEffect() == PULLER) color = glm::vec3(0.f, 0.f, 1.f);
+			else if (iter->getEffect() == PUSHER) color = glm::vec3(1.f, 1.f, 0.f);
+			else color = glm::vec3(0.f);
+			projectileShader.setVec3("color", color);
+
+			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader);
+			if (aabbDebug)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				aabbShader.use();
+				if (iter->currentAABB.isCollided())
+					aabbShader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+				else
+					aabbShader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+				aabbShader.setMat4("model", iter->getAABBTransform());
+				iter->drawAABB(aabbShader);
+			}
+		}
+	}
+
+	for (Projectile * iter : player->projectiles)
+	{
+		if (iter->isAvailable())
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			projectileShader.use();
+
+			glm::vec3 color;
+			if (iter->getEffect() == ATTACKER) color = glm::vec3(1.f, 0.f, 0.f);
+			else if (iter->getEffect() == PULLER) color = glm::vec3(0.f, 0.f, 1.f);
+			else if (iter->getEffect() == PUSHER) color = glm::vec3(1.f, 1.f, 0.f);
+			else color = glm::vec3(0.f);
+			projectileShader.setVec3("color", color);
+
+			projectileShader.setMat4("model", iter->getTransform());
+			iter->drawModel(projectileShader);
+
+			if (aabbDebug)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				aabbShader.use();
+				if (iter->currentAABB.isCollided())
+					aabbShader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+				else
+					aabbShader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+				aabbShader.setMat4("model", iter->getAABBTransform());
+				iter->drawAABB(aabbShader);
+			}
+		}
+	}
+
+	if (player->isAvailable())
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		shader.use();
+		shader.setMat4("model", player->getTransform());
+		player->drawModel(shader);
+
+		if (aabbDebug)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			aabbShader.use();
+			if (player->currentAABB.isCollided())
+				aabbShader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+			else
+				aabbShader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+			aabbShader.setMat4("model", player->getAABBTransform());
+			player->drawAABB(aabbShader);
+		}
+	}
+
+	if (enemy->isAvailable())
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		shader.use();
+		shader.setMat4("model", enemy->getTransform());
+		enemy->drawModel(shader);
+
+		if (aabbDebug)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			aabbShader.use();
+			if (enemy->currentAABB.isCollided())
+				aabbShader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+			else
+				aabbShader.setVec3("color", glm::vec3(0.f, 1.f, 0.f));
+			aabbShader.setMat4("model", enemy->getAABBTransform());
+			enemy->drawAABB(aabbShader);
+		}
+	}
+}
+
+void Scene::drawDebugQuad()
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+
+void Scene::drawDebugCube()
+{
+	// initialize (if necessary)
+	if (cubeVAO == 0)
+	{
+		float vertices[] = {
+			// back face
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			 1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+			 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+			-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			// front face
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			 1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+			-1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+			-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+			// left face
+			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+			-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+			// right face
+			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+			 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+			 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+			 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+			// bottom face
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			 1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+			 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+			-1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+			-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+			// top face
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			 1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			 1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+			 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+			-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+			-1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+		};
+		glGenVertexArrays(1, &cubeVAO);
+		glGenBuffers(1, &cubeVBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(cubeVAO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+	// render Cube
+	glBindVertexArray(cubeVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }
 
 LevelInfo Scene::readLevelFromFile(const char * levelPath)

@@ -3,6 +3,8 @@
 #include "../Engine/text.h"
 #include "../Engine/particle.h"
 
+#include "../Engine/shadow.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -38,6 +40,8 @@ private:
 	GameState state;
 	LevelDifficulty currentDiff;
 	Scene scene;
+
+	ShadowMap shadowMap;
 
 	TextRenderer * textRenderer;
 	bool movementKeys[NUM_MOVE_KEYS];

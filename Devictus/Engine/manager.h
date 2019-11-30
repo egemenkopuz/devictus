@@ -15,7 +15,7 @@ public:
 	static Shader loadShader(const char *vertexPath, const char *fragmentPath, const char * name);
 	static Shader getShader(std::string name);
 
-	static Texture loadTexture(const char *texturePath, const char * name, const char * type);
+	static Texture loadTexture(const char *texturePath, const char * name, const char * type = "null");
 	static Texture getTexture(std::string name);
 
 	static void clear();

@@ -46,8 +46,9 @@ bool Engine::init()
 		return false;
 	}
 
-	glEnable(GL_MULTISAMPLE);	// optional
 	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_MULTISAMPLE);	// optional
 	glEnable(GL_CULL_FACE);	// optional
 	glCullFace(GL_BACK);	// sub-optional
 
@@ -72,9 +73,6 @@ void Engine::start(Game * game)
 		timeFramePast = currentFrame;
 
 		keyAction();
-
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		this->game->update(deltaTime);
 		this->game->render(deltaTime);
@@ -117,10 +115,6 @@ void Engine::keyAction()
 {
 	if (keys[GLFW_KEY_ESCAPE])
 		glfwSetWindowShouldClose(window, true);
-	/*if (keys[GLFW_KEY_1])
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	if (keys[GLFW_KEY_2])
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
 	if (keys[GLFW_KEY_1])
 		game->processKey(KEY_PAUSE, deltaTime);
 	if (keys[GLFW_KEY_2])
@@ -145,9 +139,6 @@ void Engine::keyAction()
 
 void Engine::keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-#ifdef DEBUG
-	std::cout << "Key pressed, action! " << key << ", " << action << std::endl;
-#endif
 	Engine *engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
 	if (action == GLFW_PRESS)
 		engine->keys[key] = true;

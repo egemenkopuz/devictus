@@ -11,12 +11,13 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
 
 void Mesh::draw(Shader shader)
 {
-	std::string type;
+	/*std::string type;
 	std::string name;
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
+
 	for (unsigned int i = 0; i < this->textures.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		type = textures[i].type;
@@ -37,13 +38,14 @@ void Mesh::draw(Shader shader)
 			shader.setFloat(name.c_str(), i);
 		}
 		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
-	}
-	glActiveTexture(GL_TEXTURE0);
+	}*/
 
 	// draw mesh
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void Mesh::setup()

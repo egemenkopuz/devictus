@@ -28,6 +28,11 @@ public:
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
 	void draw(bool aabbDebug);
 
+	void drawShadowMap(Shader shader);
+	void drawScene(Shader &shader, bool aabbDebug = false);
+	void drawDebugQuad();
+	void drawDebugCube();
+
 	Camera * freeCamera;
 	Camera3rdPerson * playerCamera;
 	Player * player;
@@ -36,16 +41,24 @@ public:
 	std::vector<GameObject*> sceneGraph;
 
 	Model * getPModel() { return projectileModel; }
-private:
 	Model * blockModel;
 	Model * playerModel;
 	Model * enemyModel;
+private:
+	
 	Model * projectileModel;
 
 	float blockLength;
 	LevelDifficulty levelDifficulty;
 
 	static LevelInfo readLevelFromFile(const char *levelPath);
+
+
+	// exp
+	unsigned int quadVAO = 0;
+	unsigned int quadVBO = 0;
+	unsigned int cubeVAO = 0;
+	unsigned int cubeVBO = 0;
 };
 
 #endif

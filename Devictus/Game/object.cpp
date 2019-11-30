@@ -141,8 +141,8 @@ void GameObject::addChild(GameObject * child)
 	children.push_back(child);
 }
 
-Block::Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model, bool destructable) {
-	this->type = "block";
+Block::Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model, bool destructable,string type) {
+	this->type = type;
 	this->transformed = true;
 	this->position = position;
 	this->rotationDegree = rotationDegree;

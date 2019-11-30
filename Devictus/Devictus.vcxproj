@@ -143,6 +143,8 @@
     <None Include="Shaders\aabb.vert" />
     <None Include="Shaders\block.frag" />
     <None Include="Shaders\block.vert" />
+    <None Include="Shaders\debugQuad.frag" />
+    <None Include="Shaders\debugQuad.vert" />
     <None Include="Shaders\depth.frag" />
     <None Include="Shaders\depth.vert" />
     <None Include="Shaders\projectile.frag" />
@@ -160,6 +162,7 @@
     <ClCompile Include="Engine\mesh.cpp" />
     <ClCompile Include="Engine\particle.cpp" />
     <ClCompile Include="Engine\shader.cpp" />
+    <ClCompile Include="Engine\shadow.cpp" />
     <ClCompile Include="Engine\text.cpp" />
     <ClCompile Include="Engine\texture.cpp" />
     <ClCompile Include="Game\camera.cpp" />
@@ -192,6 +195,7 @@
     <ClInclude Include="Engine\model.h" />
     <ClInclude Include="Engine\particle.h" />
     <ClInclude Include="Engine\shader.h" />
+    <ClInclude Include="Engine\shadow.h" />
     <ClInclude Include="Engine\text.h" />
     <ClInclude Include="Engine\texture.h" />
     <ClInclude Include="Game\camera.h" />

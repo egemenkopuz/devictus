@@ -80,7 +80,7 @@ class Block : public GameObject {
 private:
 	float durability;
 public:
-	Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model, bool indestructable);
+	Block(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model, bool indestructable,string type);
 	bool increaseLife(float v);
 	bool decreaseLife(float v);
 	bool isAvailable();
