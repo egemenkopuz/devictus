@@ -43,35 +43,8 @@ void Enemy::action(float deltaTime)
 
 		if (castBarrier < deltaTime)
 		{
-			dX = sin(glfwGetTime());
-			dZ = cos(glfwGetTime());
 
-			glm::vec3 v = glm::normalize(glm::vec3(dX, 0.f, dZ)) * 3.f;
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, 0.f));
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, -0.f));
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, 0.f, 0.f, v.z));
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, 0.f, 0.f, -v.z));
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, v.z));
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, -v.z));
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, v.z));
-
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.3f),
-				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, -v.z));
-
+			// TODO NEW MOVE
 
 			castBarrier = deltaTime * 2.f;
 			cons--;

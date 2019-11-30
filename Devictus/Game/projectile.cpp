@@ -34,6 +34,10 @@ Projectile::Projectile(glm::vec3 position, float rotationDegree, glm::vec3 scale
 	this->pType = pType;
 	this->pEffect = pEffect;
 
+	this->rotX = 0.f;
+	this->rotY = 1.f;
+	this->rotZ = 0.f;
+
 	this->envReactive = effectEnv;
 
 	this->xSpeed = xSpeed;

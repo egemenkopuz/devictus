@@ -89,8 +89,7 @@ void Scene::init(LevelDifficulty levelDifficulty, const char *levelPath)
 		}
 	}
 
-	//this->player = new Player(glm::vec3(0.0f, 1.0f * blockLength, 4.0f * blockLength), 0.f, glm::vec3(0.2f), playerModel);
-	this->player = new Player(glm::vec3(0.0f, 5.f * blockLength, -6.0f * blockLength), 0.f, glm::vec3(0.5f), playerModel);
+	this->player = new Player(glm::vec3(0.0f, 3.f * blockLength, -6.0f * blockLength), 0.f, glm::vec3(0.5f), playerModel);
 	this->player->attachProjectileModel(this->projectileModel);
 
 	this->enemy = new Enemy(glm::vec3(0.0f, enemyModel->aabb.getMaxExtent().y, 0.0f), 0.f, glm::vec3(1.0f), enemyModel);
@@ -138,65 +137,72 @@ void Scene::draw(bool aabbDebug)
 		{
 			ProjectileEffect effect = iter->getEffect();
 			glm::vec3 color;
+
 			if (effect == ATTACKER) color = glm::vec3(1.f, 0.f, 0.f);
 			else if (effect == PULLER) color = glm::vec3(0.f, 0.f, 1.f);
 			else if (effect == PUSHER) color = glm::vec3(1.f, 1.f, 0.f);
 			else color = glm::vec3(0.f);
 
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			shader = Manager::getShader("aabb");
+			shader = Manager::getShader("projectile");
 			shader.use();
 			shader.setVec3("color", color);
 			shader.setMat4("model", iter->getTransform());
 			iter->drawModel(shader);
 
-			// TODO NIYE SPHERE ÇIKMIYOR?!?!?!?!
-			
-			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		
-			/*	shader = Manager::getShader("aabb");
+			if (aabbDebug)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				shader = Manager::getShader("aabb");
 				shader.use();
-				shader.setVec3("color", glm::vec3(0.f,1.f,0.f));
+				if (iter->currentAABB.isCollided())
+					shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+				else
+					shader.setVec3("color", glm::vec3(0.f, 0.f, 1.f));
 				shader.setMat4("model", iter->getAABBTransform());
-				iter->drawAABB(shader);*/
+				iter->drawAABB(shader);
+			}
 		}
 	}
 
-	
-	//for (Projectile * iter : player->projectiles)
-	//{
-	//	if (iter->isAvailable())
-	//	{
-	//		ProjectileEffect effect = iter->getEffect();
-	//		glm::vec3 color(0.f);
-	//		if (effect == ATTACKER) color = glm::vec3(1.f, 0.f, 0.f);
-	//		else if (effect == PULLER) color = glm::vec3(0.3f, 0.f, 1.f);
-	//		else if (effect == PUSHER) color = glm::vec3(1.f, 1.f, 0.f);
-	//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//		shader = Manager::getShader("aabb");
-	//		shader.use();
-	//		if (iter->currentAABB.isCollided())
-	//			shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
-	//		else
-	//			shader.setVec3("color", glm::vec3(0.f, 0.f, 1.f));
-	//		shader.setMat4("model", iter->getAABBTransform());
-	//		if (aabbDebug)	iter->drawAABB(shader);
 
-	//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//		shader = Manager::getShader("projectile");
-	//		shader.use();
-	//		shader.setVec3("color", color);
-	//		shader.setMat4("model", iter->getTransform());
-	//		iter->drawModel(shader);
-	//	}
-	//}
+	for (Projectile * iter : player->projectiles)
+	{
+		if (iter->isAvailable())
+		{
+			ProjectileEffect effect = iter->getEffect();
+			glm::vec3 color(0.f);
+			if (effect == ATTACKER) color = glm::vec3(1.f, 0.f, 0.f);
+			else if (effect == PULLER) color = glm::vec3(0.3f, 0.f, 1.f);
+			else if (effect == PUSHER) color = glm::vec3(1.f, 1.f, 0.f);
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			shader = Manager::getShader("projectile");
+			shader.use();
+			shader.setVec3("color", color);
+			shader.setMat4("model", iter->getTransform());
+			iter->drawModel(shader);
+
+			if (aabbDebug)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				shader = Manager::getShader("aabb");
+				shader.use();
+				if (iter->currentAABB.isCollided())
+					shader.setVec3("color", glm::vec3(1.f, 0.f, 0.f));
+				else
+					shader.setVec3("color", glm::vec3(0.f, 0.f, 1.f));
+				shader.setMat4("model", iter->getAABBTransform());
+				iter->drawAABB(shader);
+			}
+		}
+	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	if (player->isAvailable())
 	{
 		Shader shader;
-	
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		shader = Manager::getShader(player->getType());
 		shader.use();
@@ -218,7 +224,7 @@ void Scene::draw(bool aabbDebug)
 	if (enemy->isAvailable())
 	{
 		Shader shader;
-		
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		shader = Manager::getShader(enemy->getType());
 		shader.use();
