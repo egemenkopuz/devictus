@@ -13,7 +13,7 @@ private:
 	unsigned int depthMap;
 public:
 	float near_plane = 1.0f;
-	float far_plane = 7.5f;
+	float far_plane = 5.f;
 
 	ShadowMap() = default;
 	~ShadowMap() = default;

@@ -130,15 +130,23 @@ void Game::init()
 {
 	Manager::loadTexture("./Textures/object.jpg", "object");
 	Manager::loadTexture("./Textures/wall.jpg", "wall");
-	Manager::loadTexture("./Textures/container.jpg", "projectile");
+	Manager::loadTexture("./Textures/red.png", "red");
+	Manager::loadTexture("./Textures/blue.png", "blue");
+	Manager::loadTexture("./Textures/yellow.png", "yellow");
+	Manager::loadTexture("./Textures/green.png", "green");
+	Manager::loadTexture("./Textures/black.png", "black");
+	Manager::loadTexture("./Textures/enemy.png", "enemy");
+	Manager::loadTexture("./Textures/player.png", "player");
 
 	Manager::loadShader("./Shaders/block.vert", "./Shaders/block.frag", "block");
-	Manager::loadShader("./Shaders/projectile.vert", "./Shaders/projectile.frag", "projectile");
-	Manager::loadShader("./Shaders/text.vert", "./Shaders/text.frag", "text");
 	Manager::loadShader("./Shaders/aabb.vert", "./Shaders/aabb.frag", "aabb");
-	
-	// exp
 	Manager::loadShader("./Shaders/depth.vert", "./Shaders/depth.frag", "depth");
+
+	Shader projectileShader = Manager::loadShader("./Shaders/projectile.vert", "./Shaders/projectile.frag", "projectile");
+	projectileShader.use();
+	projectileShader.setInt("diffuseTexture", 0);
+	projectileShader.setInt("shadowMap", 1);
+
 	Shader objectShader = Manager::loadShader("./Shaders/object.vert", "./Shaders/object.frag", "object");
 	objectShader.use();
 	objectShader.setInt("diffuseTexture", 0);
@@ -147,33 +155,17 @@ void Game::init()
 	Shader quadShader = Manager::loadShader("./Shaders/debugQuad.vert", "./Shaders/debugQuad.frag", "quad");
 	quadShader.use();
 	quadShader.setInt("depthMap", 0);
-	// exp
-	
-	Shader blockShader = Manager::getShader("block");
-	blockShader.use();
-	blockShader.setFloat("material.shininess", 32.0f);
-	blockShader.setFloat("material.diffuse", 1.0f);
-	blockShader.setFloat("material.specular", 1.0f);
 
-	// directional light
-	blockShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-	blockShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-	blockShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-	blockShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-
-	// point light 1
-	blockShader.setVec3("pointLights[0].position", glm::vec3(0.0f, 3.0f, 0.0f));
-	blockShader.setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-	blockShader.setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-	blockShader.setVec3("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
-	blockShader.setFloat("pointLights[0].constant", 1.0f);
-	blockShader.setFloat("pointLights[0].linear", 0.09);
-	blockShader.setFloat("pointLights[0].quadratic", 0.032);
-
-	Shader textShader = Manager::getShader("text");
+	Shader textShader = Manager::loadShader("./Shaders/text.vert", "./Shaders/text.frag", "text");
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT));
 	textShader.use();
-	glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	textShader.setMat4("projection", projection);
+	//glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+	Shader guiShader = Manager::loadShader("./Shaders/guiQuad.vert", "./Shaders/guiQuad.frag", "gui");
+	guiShader.use();
+	guiShader.setMat4("projection", projection);
+	guiShader.setInt("image", 0);
 
 	shadowMap = ShadowMap();
 	shadowMap.init();
@@ -200,7 +192,33 @@ void Game::update(float deltaTime)
 		{
 			if (!paused)
 			{
+				if (!enemy->isAvailable())
+					state = GAME_WIN;
+
+				if (!player->isAvailable())
+					state = GAME_LOSE;
+
 				player->target = enemy->getPosition();
+
+				std::vector<Trail*>::iterator iterT = player->trails.begin();
+				while (iterT != player->trails.end())
+				{
+
+					if ((*iterT)->lifeTime > 0.f)
+					{
+						(*iterT)->lifeTime -= deltaTime;
+						iterT++;
+					}
+					else if (iterT != player->trails.end())
+					{
+						iterT = player->trails.erase(iterT);
+					}
+					else
+					{
+						player->trails.erase(iterT);
+						break;
+					}
+				}
 
 				player->move(movementKeys, deltaTime);
 
@@ -211,14 +229,15 @@ void Game::update(float deltaTime)
 				std::vector<Projectile*>::iterator iter = enemy->projectiles.begin();
 				while (iter != enemy->projectiles.end())
 				{
-					if ((*iter)->isAvailable()) 
+					if ((*iter)->isAvailable())
 					{
 						(*iter)->move(deltaTime);
 						iter++;
 					}
 					else if (iter != enemy->projectiles.end())
 						iter = enemy->projectiles.erase(iter);
-					else {
+					else
+					{
 						enemy->projectiles.erase(iter);
 						break;
 					}
@@ -234,7 +253,8 @@ void Game::update(float deltaTime)
 					}
 					else if (iter != player->projectiles.end())
 						iter = player->projectiles.erase(iter);
-					else {
+					else
+					{
 						player->projectiles.erase(iter);
 						break;
 					}
@@ -243,12 +263,6 @@ void Game::update(float deltaTime)
 				checkCollisions(deltaTime);
 
 				playerCamera->processMovement();
-
-				if (!enemy->isAvailable())
-					state = GAME_WIN;
-
-				if (!player->isAvailable())
-					state = GAME_LOSE;
 			}
 			menuSelectionBarrier = true;
 		}
@@ -281,6 +295,7 @@ void Game::render(float deltaTime)
 			textRenderer->renderText("GOD", 930.f, gameHeight / 3.f, 0.5f, glm::vec3(1.0, 1.0f, 1.0f));
 		break;
 	case GAME_ACTIVE:
+	{
 		// view/projection transformations
 		glm::mat4 projection;
 		glm::mat4 view;
@@ -300,15 +315,14 @@ void Game::render(float deltaTime)
 			position = playerCamera->getPosition();
 		}
 
-		////////////////////// exp
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
-	
+
 		lightProjection = glm::perspective(glm::radians(120.f), (GLfloat)1024 / (GLfloat)1024, shadowMap.near_plane, shadowMap.far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
 		//lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, shadowMap.near_plane, shadowMap.far_plane);
-		lightView = glm::lookAt(glm::vec3(0.f,4.f,0.f), glm::vec3(0.f,0.f,0.f), glm::vec3(1.f, 0.0f, 1.0f));
+		lightView = glm::lookAt(glm::vec3(0.f, 5.f, 0.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 0.0f, 1.0f));
 		lightSpaceMatrix = lightProjection * lightView;
 
 		Shader depthShader = Manager::getShader("depth");
@@ -319,22 +333,11 @@ void Game::render(float deltaTime)
 		glViewport(0, 0, 1024, 1024);
 		shadowMap.bindForWriting();
 		glClear(GL_DEPTH_BUFFER_BIT);
-		/*glActiveTexture(GL_TEXTURE0);
-		Manager::getTexture("object").bind();*/
 		this->scene.drawShadowMap(depthShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glEnable(GL_CULL_FACE);
-		glViewport(0, 0, 1920, 1080);
+		glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		Shader objectShader = Manager::getShader("object");
-		objectShader.use();
-		objectShader.setMat4("projection", projection);
-		objectShader.setMat4("view", view);
-		objectShader.setVec3("viewPos", position);
-		objectShader.setVec3("lightPos", glm::vec3(0.f, 3.5f, 0.f));
-		objectShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-		shadowMap.bindForReading(GL_TEXTURE1);
 
 		if (aabbDebug)
 		{
@@ -343,15 +346,37 @@ void Game::render(float deltaTime)
 			aabbShader.setMat4("projection", projection);
 			aabbShader.setMat4("view", view);
 		}
-		
+
+		Shader objectShader = Manager::getShader("object");
+		objectShader.use();
+		if (player->isDamaged())
+			objectShader.setVec3("lightColor", glm::vec3(1.f, 0.f, 0.f));
+		else
+			objectShader.setVec3("lightColor", glm::vec3(0.6f));
+		objectShader.setMat4("projection", projection);
+		objectShader.setMat4("view", view);
+		objectShader.setVec3("viewPos", position);
+		objectShader.setVec3("lightPos", glm::vec3(0.f, 5.f, 0.f));
+		objectShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		shadowMap.bindForReading(GL_TEXTURE1);
+
 		Shader projectileShader = Manager::getShader("projectile");
 		projectileShader.use();
+		if (player->isDamaged())
+			projectileShader.setVec3("lightColor", glm::vec3(1.f, 0.f, 0.f));
+		else
+			projectileShader.setVec3("lightColor", glm::vec3(0.6f));
 		projectileShader.setMat4("projection", projection);
 		projectileShader.setMat4("view", view);
+		projectileShader.setVec3("viewPos", position);
+		projectileShader.setVec3("lightPos", glm::vec3(0.f, 5.f, 0.f));
+		projectileShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		shadowMap.bindForReading(GL_TEXTURE1);
 
-		this->scene.drawScene(objectShader,aabbDebug);
+		this->scene.drawScene(objectShader, aabbDebug);
 
-		// DEBUG
+		// DEBUG FOR SHADOWS
+		// TODO KEY TO ACTIVATE THIS
 
 		/*Shader quadShader = Manager::getShader("quad");
 		quadShader.use();
@@ -359,50 +384,34 @@ void Game::render(float deltaTime)
 		quadShader.setFloat("far_plane", shadowMap.far_plane);
 		shadowMap.bindForReading(GL_TEXTURE0);
 
-		this->scene.drawDebugQuad();*/
+		this->scene.drawQuad();*/
 
-		// Shader modification
-		/*Shader blockShader = Manager::getShader("block");
-		blockShader.use();
-		blockShader.setVec3("viewPos", position);
-		blockShader.setMat4("projection", projection);
-		blockShader.setMat4("view", view);
-
-		Shader aabbShader = Manager::getShader("aabb");
-		aabbShader.use();
-		aabbShader.setMat4("projection", projection);
-		aabbShader.setMat4("view", view);
-
-		*/
-
-		// Rendering the objects
-		//this->scene.draw(aabbDebug);
+		projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT));
+		Shader guiShader = Manager::getShader("gui");
+		this->scene.drawGUI(guiShader);
 
 		// Text rendering
-		if (paused) textRenderer->renderText("PAUSED", 15.f, 60.f, 0.5f, glm::vec3(0.0, 0.0f, 1.0f));
-		textRenderer->renderText("Mephisto %" + std::to_string((int)enemy->getLife()), 870.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f));
+		//if (paused) textRenderer->renderText("PAUSED", 15.f, 60.f, 0.5f, glm::vec3(0.0, 0.0f, 1.0f));
+		textRenderer->renderText("Mephisto", 890.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f)); // std::to_string((int)enemy->getLife())
 		textRenderer->renderText("FPS:" + std::to_string((int)ceil(1.0f / deltaTime)), 15.f, 1050.f, 0.35f, glm::vec3(1.0, 0.0f, 0.0f));
-		textRenderer->renderText("HEALTH: %" + std::to_string((int)player->getLife()), 15.f, 25.f, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+		//textRenderer->renderText("HEALTH: %" + std::to_string((int)player->getLife()), 15.f, 25.f, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		break;
+	}
+	break;
 	case GAME_WIN:
-		/*glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 		textRenderer->renderText("YOU WIN", 800.f, 500.f, 1.f, glm::vec3(1.0, 0.0f, 0.0f));
 		break;
 	case GAME_LOSE:
-	/*	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 		textRenderer->renderText("YOU LOSE", 800.f, 500.f, 1.f, glm::vec3(1.0, 0.0f, 0.0f));
 		break;
 	}
 }
+
 void Game::checkCollisions(float deltaTime)
 {
 	bool intersectedFaces[6] = { 0,0,0,0,0,0 };
-	
-	// player melee attack vs enemy
 
+	// player melee attack vs enemy
 	if (player->doingMeleeAttack())
 	{
 		Collision playerMeleeCollision = player->currentAABB.intersectAABB(enemy->currentAABB);
@@ -430,7 +439,6 @@ void Game::checkCollisions(float deltaTime)
 	}
 
 	// player vs enemy's projectiles
-
 	Collision playerProjectileCollision;
 	if (!player->isInvisible())
 	{
@@ -455,15 +463,15 @@ void Game::checkCollisions(float deltaTime)
 					}
 					else if (e == PUSHER)
 					{
-						glm::vec3 diff = -glm::normalize(enemy->getPosition() - player->getPosition()) * 0.8f;
-
-						player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
+						glm::vec3 diff = -glm::normalize(enemy->getPosition() - player->getPosition());
+						player->push(diff);
+						//player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
 					}
 					else if (e == PULLER)
 					{
-						glm::vec3 diff = glm::normalize(enemy->getPosition() - player->getPosition()) * 0.4f;
-
-						player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
+						glm::vec3 diff = glm::normalize(enemy->getPosition() - player->getPosition());
+						player->pull(diff);
+						//player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
 					}
 				}
 			}
@@ -471,7 +479,7 @@ void Game::checkCollisions(float deltaTime)
 	}
 
 	// player & projectiles vs environment
-
+	player->isOnGround = false;
 	for (auto& block : scene.sceneGraph)
 	{
 		if (block->isAvailable())
@@ -491,7 +499,7 @@ void Game::checkCollisions(float deltaTime)
 						ProjectileType t = projectile->getProjectileType();
 						ProjectileEffect e = projectile->getEffect();
 						if (t == BULLET && e == ATTACKER) damage = 50.f;
-						else if (t == AREA_OF_EFFECT) damage = 100.f;
+						else if (t == AOE) damage = 100.f;
 						else if (t == RANDOM && e == ATTACKER) damage = 2.f;
 						else damage = 0.f;
 
@@ -512,7 +520,7 @@ void Game::checkCollisions(float deltaTime)
 						ProjectileType t = projectile->getProjectileType();
 						ProjectileEffect e = projectile->getEffect();
 						if (t == BULLET && e == ATTACKER) damage = 20.f;
-						else if (t == AREA_OF_EFFECT && e == ATTACKER) damage = 10.f;
+						else if (t == AOE && e == ATTACKER) damage = 10.f;
 						else if (t == RANDOM && e == ATTACKER) damage = 2.f;
 						else damage = 0.f;
 
@@ -523,6 +531,7 @@ void Game::checkCollisions(float deltaTime)
 			}
 
 			// PLAYER VS ENV
+
 			if (flag0)
 			{
 				Collision playerCollision = player->currentAABB.intersectAABB(block->currentAABB);
@@ -583,6 +592,7 @@ void Game::checkCollisions(float deltaTime)
 						player->increasePosition(glm::vec3(0.f, difference, 0.f));
 						/*player->LIMIT = block->currentAABB.getMaxExtent().y + 0.001f;*/
 						intersectedFaces[2] = true;
+						player->isOnGround = true;
 					}
 					else if (intersectedFaces[3] == false && dir == C_TOP) // -y reaction
 					{
@@ -598,8 +608,8 @@ void Game::checkCollisions(float deltaTime)
 		player->currentAABB.setCollision(true);
 	//if (enemyHit) enemy->currentAABB.setCollision(true);
 }
+
 bool Game::isTerminated()
 {
 	return terminated;
 }
-

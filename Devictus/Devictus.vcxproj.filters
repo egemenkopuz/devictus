@@ -108,6 +108,18 @@
     <None Include="Shaders\debugQuad.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\guiQuad.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\guiQuad.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\text.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\text.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 
+
 class Enemy : public GameObject {
 private:
 	float health;

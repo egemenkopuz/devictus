@@ -5,8 +5,11 @@
 
 enum ProjectileType {
 	BULLET,
-	AREA_OF_EFFECT,
-	RANDOM
+	AOE,
+	RANDOM,
+	SCISSOR,
+	HOMING
+	// TODO MAYBE RAY, help from 3rdperson camera
 };
 
 enum ProjectileEffect {
@@ -27,7 +30,10 @@ private:
 
 	ProjectileType pType;
 	ProjectileEffect pEffect;
+
+	glm::vec3 target;
 public:
+	void updateTarget(glm::vec3 t) { target = t; }
 	bool isOver() { return lifeTime > 0.f ? false : true; }
 	void end() { lifeTime = -1.f; }
 	ProjectileEffect getEffect() { return pEffect; }

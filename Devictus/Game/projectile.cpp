@@ -10,7 +10,7 @@ void Projectile::move(float deltaTime)
 		{
 			increasePosition(glm::vec3(xSpeed * deltaTime, ySpeed * deltaTime, zSpeed * deltaTime));
 		}
-		else if (pType = AREA_OF_EFFECT)
+		else if (pType = AOE)
 		{
 			increasePosition(glm::vec3(0.f, ySpeed * deltaTime, 0.f));
 		}

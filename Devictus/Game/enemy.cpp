@@ -77,13 +77,13 @@ void Enemy::action(float deltaTime)
 
 			glm::vec3 v = glm::normalize(glm::vec3(dX, 0.f, dZ)) * 3.f;
 
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f),
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.2f),
 				projectileModel, RANDOM, (ProjectileEffect)effectType, true, v.x, 0.f, v.z));
 
-			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f),
+			projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.2f),
 				projectileModel, RANDOM, (ProjectileEffect)effectType, true, -v.x, 0.f, -v.z));
 
-			castBarrier = deltaTime * 2.f;
+			castBarrier = deltaTime * 5.f;
 			cons--;
 		}
 		else castBarrier -= deltaTime;
@@ -113,7 +113,7 @@ void Enemy::action(float deltaTime)
 		if (castBarrier < deltaTime)
 		{
 			projectiles.push_back(new Projectile(glm::vec3(player->getPosition().x, player->getPosition().y + 3.f, player->getPosition().z), 0.f, glm::vec3(0.5f),
-				projectileModel, AREA_OF_EFFECT, (ProjectileEffect)effectType, true, 0.f, -1.f, 0.f));
+				projectileModel, AOE, (ProjectileEffect)effectType, true, 0.f, -1.f, 0.f));
 
 			castBarrier = deltaTime * 15.f;
 			cons--;

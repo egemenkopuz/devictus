@@ -8,14 +8,27 @@ void Player::attachProjectileModel(Model * model)
 void Player::move(bool keys[], float deltaTime)
 {
 	prevDeltaTime = deltaTime;
+	
+	if (damagedTime < deltaTime)
+	{
+		damaged = false;
+	}
+	else damagedTime -= deltaTime;
 
+	// stamina buffer
+	stamina += 10 * deltaTime;
+	if (stamina >= 100.0f)
+		stamina = 100.f;
+
+	// inits
 	currentJumpSpeed = 0.f;
 	currentWalkingSpeedX = 0.f;
 	currentWalkingSpeedZ = 0.f;
 
+	// jumping
 	if (!jumping) CURRENT_JUMP = 0.f;
 
-	if (keys[MOVE_UP] == true && !jumping && currentAABB.isCollided())
+	if (keys[MOVE_UP] == true && !jumping && currentAABB.isCollided() && isOnGround == true)
 	{
 		currentJumpSpeed = JUMPING_SPEED;
 		jumping = true;
@@ -25,12 +38,18 @@ void Player::move(bool keys[], float deltaTime)
 		//potentialY += -JUMPING_SPEED;
 	}
 
+	// dashing
 	if (invisFrame < deltaTime)
 	{
 		invisibility = false;
 		dashBoost = 1.f;
 	}
-	else invisFrame -= deltaTime;
+	else
+	{
+		invisFrame -= deltaTime;
+		Trail * trail = new Trail(transformMatrix, invisFrame);
+		trails.push_back(trail);
+	}
 
 	if (dashCooldown < deltaTime)
 	{
@@ -38,33 +57,61 @@ void Player::move(bool keys[], float deltaTime)
 	}
 	else dashCooldown -= deltaTime;
 
-	if (keys[MOVE_SHIFT] && !invisibility && !dashed)
+	if (keys[MOVE_SHIFT] && !invisibility && !dashed && !invisibility && stamina >= 30.f)
 	{
-		dashBoost = 2.f;
-		invisFrame = 20.f * deltaTime;
-		dashCooldown = 60.f * deltaTime;
+		dashBoost = 3.f;
+		invisFrame = 10.f * deltaTime;
+		dashCooldown = 15.f * deltaTime;
 		invisibility = true;
 		dashed = true;
+		stamina -= 30.f;
 	}
 
-	if (keys[MOVE_FORWARD] == true)
+	if (forcedMovTime < deltaTime)
 	{
-		currentWalkingSpeedX = WALKING_SPEED * dashBoost;
+		beingPulled = false;
+		beingPushed = false;
 	}
-	if (keys[MOVE_BACKWARD] == true)
+	else forcedMovTime -= deltaTime;
+
+	// movements
+	if (beingPushed || beingPulled)
 	{
-		currentWalkingSpeedX = -WALKING_SPEED * dashBoost;
+		// forced movement
+		if (beingPulled)
+		{
+			currentWalkingSpeedX = pullingV.x * 5.f;
+			currentWalkingSpeedZ = pullingV.z * 5.f;
+		}
+		else
+		{
+			currentWalkingSpeedX = pushingV.x * 10.f;
+			currentWalkingSpeedZ = pushingV.z * 10.f;
+		}
+	}
+	else
+	{
+		// normal user's movement
+		if (keys[MOVE_FORWARD] == true)
+		{
+			currentWalkingSpeedX = WALKING_SPEED * dashBoost;
+		}
+		if (keys[MOVE_BACKWARD] == true)
+		{
+			currentWalkingSpeedX = -WALKING_SPEED * dashBoost;
+		}
+
+		if (keys[MOVE_LEFT] == true)
+		{
+			currentWalkingSpeedZ = -WALKING_SPEED * dashBoost;
+		}
+		if (keys[MOVE_RIGHT] == true)
+		{
+			currentWalkingSpeedZ = WALKING_SPEED * dashBoost;
+		}
 	}
 
-	if (keys[MOVE_LEFT] == true)
-	{
-		currentWalkingSpeedZ = -WALKING_SPEED * dashBoost;
-	}
-	if (keys[MOVE_RIGHT] == true)
-	{
-		currentWalkingSpeedZ = WALKING_SPEED * dashBoost;
-	}
-
+	// ranged attack
 	if (castBarrier < deltaTime)
 	{
 		casting = false;
@@ -73,14 +120,14 @@ void Player::move(bool keys[], float deltaTime)
 
 	if (keys[MOVE_MOUSE_LEFT] == true && !casting)
 	{
-		glm::vec3 diff = glm::normalize(target - position) * 4.f;
+		glm::vec3 diff = glm::normalize(target - position) * 7.f;
 
-		projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f),
-			projectileModel, BULLET, ATTACKER, true, diff.x, diff.y, diff.z));
+		projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f), projectileModel, BULLET, ATTACKER, true, diff.x, diff.y, diff.z));
 		castBarrier = deltaTime * 30.f;
 		casting = true;
 	}
 
+	// melee attack
 	if (meleeBarrier < deltaTime)
 	{
 		attacked = false;
@@ -95,16 +142,25 @@ void Player::move(bool keys[], float deltaTime)
 	}
 	else melee = false;
 
+	// results
 	float dX = 0.f, dZ = 0.f;
 
 	float mX = currentWalkingSpeedX * deltaTime;
 	float mZ = currentWalkingSpeedZ * deltaTime;
 
-	dX += (float)(mX * sin(rotationDegree));
-	dZ += (float)(mX * cos(rotationDegree));
+	if (beingPulled || beingPushed)
+	{
+		dX = mX;
+		dZ = mZ;
+	}
+	else
+	{
+		dX += (float)(mX * sin(rotationDegree));
+		dZ += (float)(mX * cos(rotationDegree));
 
-	dX += (float)(mZ * -cos(rotationDegree));
-	dZ += (float)(mZ * sin(rotationDegree));
+		dX += (float)(mZ * -cos(rotationDegree));
+		dZ += (float)(mZ * sin(rotationDegree));
+	}
 
 	float dY = 0.f;
 
@@ -137,7 +193,6 @@ Player::Player(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model 
 	this->position = position;
 	this->rotationDegree = rotationDegree;
 	this->scale = scale;
-	this->health = 100.f;
 	this->casting = false;
 	this->destructable = true;
 	this->available = true;
@@ -168,6 +223,8 @@ bool Player::increaseLife(float v)
 bool Player::decreaseLife(float v)
 {
 	health -= v;
+	damaged = true;
+	damagedTime = prevDeltaTime * 10.f;
 	if (health <= 0.f)
 		return false;
 	else return true;
@@ -178,4 +235,28 @@ bool Player::isAvailable()
 	if (health <= 0.f || !available)
 		return false;
 	else return true;
+}
+
+bool Player::push(glm::vec3 v)
+{
+	if (!beingPushed && !beingPulled)
+	{
+		pushingV = v;
+		beingPushed = true;
+		forcedMovTime = prevDeltaTime * 15.f;
+		return true;
+	}
+	else return false;
+}
+
+bool Player::pull(glm::vec3 v)
+{
+	if (!beingPushed && !beingPulled)
+	{
+		pullingV = v;
+		beingPulled = true;
+		forcedMovTime = prevDeltaTime * 15.f;
+		return true;
+	}
+	else return false;
 }

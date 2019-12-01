@@ -80,6 +80,7 @@ private:
 
 	unsigned int VBO, VAO, EBO;
 public:
+	CollisionDirection dir;
 	float height;
 	float widthX;
 	float widthZ;
@@ -183,7 +184,6 @@ public:
 
 	Collision intersectAABB(AABB& other)
 	{
-		CollisionDirection dir;
 		other.collided = false;
 
 		//glm::vec3 distance1 = other.getMinExtent() - this->maxExtent;

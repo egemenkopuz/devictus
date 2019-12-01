@@ -4,10 +4,26 @@
 #include "object.h"
 #include "projectile.h"
 
+struct Trail {
+	glm::mat4 model;
+	float lifeTime;
+
+	Trail(glm::mat4 m, float t) : model(m), lifeTime(t) {}
+};
+
 class Player : public GameObject {
 private:
-	float health;
-	int stamina;
+	float health = 100.f;
+	float stamina = 100.f;
+
+	bool damaged = false;
+	float damagedTime = 0.f;
+
+	float forcedMovTime;
+	bool beingPulled;
+	bool beingPushed;
+	glm::vec3 pushingV;
+	glm::vec3 pullingV;
 
 	bool melee = false;
 	bool attacked = false;
@@ -32,16 +48,19 @@ private:
 	float currentJumpSpeed;
 	float currentTurnSpeed;
 
-	const float WALKING_SPEED = 1.f;
+	const float WALKING_SPEED = 1.2f;
 	const float TURNNING_SPEED = 5.f;
 	const float GRAVITY = -1.f;
 	const float JUMPING_SPEED = 2.5f;
 
 	const float JUMP_MAX = 1.f;
 	float CURRENT_JUMP = 0.f;
-
+	
 	Model * projectileModel;
 public:
+	std::vector<Trail*> trails;
+	bool isOnGround = false;
+
 	std::vector<Projectile*> projectiles;
 	void attachProjectileModel(Model * model);
 	glm::vec3 target;
@@ -50,7 +69,7 @@ public:
 	float getCurrentWalkingSpeedX() { return currentWalkingSpeedX; }
 	float getCurrentJumpSpeed() { return currentJumpSpeed; }
 
-	float LIMIT = -5.f;
+	float LIMIT = -2.f;
 
 	void move(bool keys[], float deltaTime);
 
@@ -64,12 +83,21 @@ public:
 	bool decreaseLife(float v);
 	bool isAvailable();
 	float getLife() { return health; }
+	float getStamina() { return stamina; }
 	bool doingMeleeAttack() { return melee; }
 
 	bool canMeleeAttack() { return !attacked; }
 	bool canRangedAttack() { return !casting; }
 	bool canDash() { return !dashed; }
-};
+
+	bool isPushed() { return beingPushed; }
+	bool isPulled() { return beingPulled; }
+		
+	bool push(glm::vec3 v);
+	bool pull(glm::vec3 v);
+
+	bool isDamaged() { return damaged; }
+ };
 
 
 #endif

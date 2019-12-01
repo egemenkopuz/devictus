@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include "../Utilities/definitions.h"
 #include "../Engine/manager.h"
 
 #include "camera.h"
@@ -26,12 +27,13 @@ public:
 	~Scene();
 
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
-	void draw(bool aabbDebug);
+	//void draw(bool aabbDebug);
 
 	void drawShadowMap(Shader shader);
 	void drawScene(Shader &shader, bool aabbDebug = false);
-	void drawDebugQuad();
-	void drawDebugCube();
+	void drawGUI(Shader &shader);
+	void drawQuad();
+	void drawCube();
 
 	Camera * freeCamera;
 	Camera3rdPerson * playerCamera;

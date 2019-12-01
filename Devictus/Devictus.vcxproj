@@ -147,6 +147,8 @@
     <None Include="Shaders\debugQuad.vert" />
     <None Include="Shaders\depth.frag" />
     <None Include="Shaders\depth.vert" />
+    <None Include="Shaders\guiQuad.frag" />
+    <None Include="Shaders\guiQuad.vert" />
     <None Include="Shaders\projectile.frag" />
     <None Include="Shaders\projectile.vert" />
     <None Include="Shaders\light.frag" />
@@ -155,6 +157,8 @@
     <None Include="Shaders\object.vert" />
     <None Include="Shaders\particle.frag" />
     <None Include="Shaders\particle.vert" />
+    <None Include="Shaders\text.frag" />
+    <None Include="Shaders\text.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\engine.cpp" />
