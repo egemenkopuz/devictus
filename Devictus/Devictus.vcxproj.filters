@@ -51,12 +51,6 @@
     <None Include="Shaders\block.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\light.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\light.vert">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Levels\challenger.lvl">
       <Filter>Levels</Filter>
     </None>
@@ -90,12 +84,6 @@
     <None Include="Shaders\object.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\particle.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Shaders\particle.vert">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Shaders\projectile.frag">
       <Filter>Shaders</Filter>
     </None>
@@ -118,6 +106,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\text.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\skybox.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\skybox.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
@@ -242,6 +236,9 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Engine\shadow.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\skybox.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>

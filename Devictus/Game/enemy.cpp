@@ -1,15 +1,6 @@
 #include "enemy.h"
 #include <GLFW/glfw3.h>
 
-bool Enemy::checkPhase()
-{
-	if (castType == 3 && health > 30.f)
-		return true;
-
-
-
-	return false;
-}
 
 void Enemy::action(float deltaTime)
 {
@@ -23,9 +14,7 @@ void Enemy::action(float deltaTime)
 	// deciding attack type
 	if (castType == -1) // deciding
 	{
-		do {
-			castType = rand() % 4;
-		} while (checkPhase());
+		castType = rand() % 4;
 
 		effectType = rand() % 3;
 		firstInit = true;
@@ -130,6 +119,22 @@ void Enemy::action(float deltaTime)
 void Enemy::attachPlayer(Player * player)
 {
 	this->player = player;
+}
+
+void Enemy::phase1(float deltaTime)
+{
+}
+
+void Enemy::phase2(float deltaTime)
+{
+}
+
+void Enemy::phase3(float deltaTime)
+{
+}
+
+void Enemy::phase4(float deltaTime)
+{
 }
 
 void Enemy::attachProjectileModel(Model * model)

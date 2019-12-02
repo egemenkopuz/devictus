@@ -13,7 +13,7 @@ private:
 	unsigned int depthMap;
 public:
 	float near_plane = 1.0f;
-	float far_plane = 5.f;
+	float far_plane = 40.f;
 
 	ShadowMap() = default;
 	~ShadowMap() = default;
@@ -22,6 +22,5 @@ public:
 	void bindForWriting();
 	void bindForReading(GLenum textureUnit);
 };
-
 
 #endif

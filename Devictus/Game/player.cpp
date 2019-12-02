@@ -120,9 +120,29 @@ void Player::move(bool keys[], float deltaTime)
 
 	if (keys[MOVE_MOUSE_LEFT] == true && !casting)
 	{
-		glm::vec3 diff = glm::normalize(target - position) * 7.f;
+		if (aimAssist)
+		{
+			glm::vec3 diff = glm::normalize(target - position) *7.f;
+			Projectile * p = new Projectile(position, 0.f, glm::vec3(0.1f), projectileModel, BULLET, ATTACKER, true, diff.x, diff.y, diff.z);
+			p->makeTrails = true;
+			projectiles.push_back(p);
+		}
+		else
+		{
+			glm::vec3 v = glm::normalize(target - position);
+			float offsetX = 1.f * sin(rotationDegree);
+			float offsetZ = 1.f * cos(rotationDegree);
 
-		projectiles.push_back(new Projectile(position, 0.f, glm::vec3(0.1f), projectileModel, BULLET, ATTACKER, true, diff.x, diff.y, diff.z));
+			v.x = offsetX;
+			v.z = offsetZ;
+			
+			v *= 7.f;
+			
+			Projectile * p = new Projectile(position, 0.f, glm::vec3(0.1f), projectileModel, BULLET, ATTACKER, true, v.x, v.y, v.z);
+			p->makeTrails = true;
+			projectiles.push_back(p);
+		}
+
 		castBarrier = deltaTime * 30.f;
 		casting = true;
 	}

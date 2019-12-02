@@ -59,7 +59,9 @@ private:
 	Model * projectileModel;
 public:
 	std::vector<Trail*> trails;
+
 	bool isOnGround = false;
+	bool aimAssist = false;
 
 	std::vector<Projectile*> projectiles;
 	void attachProjectileModel(Model * model);

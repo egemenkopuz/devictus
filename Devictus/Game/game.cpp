@@ -75,11 +75,46 @@ void Game::processKey(KEY key, float deltaTime)
 			menuSelectionBarrierVal = 50.f * deltaTime;
 		}
 
-		if (key == KEY_DEBUG) {
+		if (key == KEY_AABB_DEBUG) {
 			if (!menuSelectionBarrier) return;
 			aabbDebug = !aabbDebug;
 			menuSelectionBarrier = false;
 			menuSelectionBarrierVal = 15.f * deltaTime;
+		}
+		
+		if (key == KEY_SHADOW_DEBUG) {
+			if (!menuSelectionBarrier) return;
+			shadowDebug = !shadowDebug;
+			menuSelectionBarrier = false;
+			menuSelectionBarrierVal = 15.f * deltaTime;
+		}
+
+		if (key == KEY_AIM_ASSIST)
+		{
+			if (!menuSelectionBarrier) return;
+			player->aimAssist = !player->aimAssist;
+			menuSelectionBarrier = false;
+			menuSelectionBarrierVal = 15.f * deltaTime;
+		}
+		
+		if (key == KEY_ARROW_UP)
+		{
+			lightPosition.z -= 1.f * deltaTime;
+		}
+
+		if (key == KEY_ARROW_DOWN)
+		{
+			lightPosition.z += 1.f * deltaTime;
+		}
+
+		if (key == KEY_ARROW_LEFT)
+		{
+			lightPosition.x -= 1.f * deltaTime;
+		}
+
+		if (key == KEY_ARROW_RIGHT)
+		{
+			lightPosition.x += 1.f * deltaTime;
 		}
 
 		if (key == KEY_ESCAPE) {
@@ -141,6 +176,10 @@ void Game::init()
 	Manager::loadShader("./Shaders/block.vert", "./Shaders/block.frag", "block");
 	Manager::loadShader("./Shaders/aabb.vert", "./Shaders/aabb.frag", "aabb");
 	Manager::loadShader("./Shaders/depth.vert", "./Shaders/depth.frag", "depth");
+	
+	Shader skyboxShader = Manager::loadShader("./Shaders/skybox.vert", "./Shaders/skybox.frag", "skybox");
+	skyboxShader.use();
+	skyboxShader.setInt("skybox", 0);
 
 	Shader projectileShader = Manager::loadShader("./Shaders/projectile.vert", "./Shaders/projectile.frag", "projectile");
 	projectileShader.use();
@@ -173,6 +212,19 @@ void Game::init()
 	textRenderer = new TextRenderer("text");
 
 	this->state = GAME_MENU;
+
+	vector<std::string> faces
+	{
+		"./Textures/Skybox/right.jpg",
+		"./Textures/Skybox/left.jpg",
+		"./Textures/Skybox/top.jpg",
+		"./Textures/Skybox/bottom.jpg",
+		"./Textures/Skybox/front.jpg",
+		"./Textures/Skybox/back.jpg"
+	};
+
+	skybox.init();
+	skybox.load(faces);
 }
 
 void Game::update(float deltaTime)
@@ -265,6 +317,11 @@ void Game::update(float deltaTime)
 				playerCamera->processMovement();
 			}
 			menuSelectionBarrier = true;
+
+			if (player->isDamaged() || enemy->getPhase() == 4)
+				lightColor = glm::vec3(1.f, 0.f, 0.f);
+			else
+				lightColor = glm::vec3(0.6f);
 		}
 
 		break;
@@ -296,6 +353,9 @@ void Game::render(float deltaTime)
 		break;
 	case GAME_ACTIVE:
 	{
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		// view/projection transformations
 		glm::mat4 projection;
 		glm::mat4 view;
@@ -315,14 +375,13 @@ void Game::render(float deltaTime)
 			position = playerCamera->getPosition();
 		}
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
 
-		lightProjection = glm::perspective(glm::radians(120.f), (GLfloat)1024 / (GLfloat)1024, shadowMap.near_plane, shadowMap.far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+		lightProjection = glm::perspective(glm::radians(90.f), (GLfloat)1024 / (GLfloat)1024, shadowMap.near_plane, shadowMap.far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
 		//lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, shadowMap.near_plane, shadowMap.far_plane);
-		lightView = glm::lookAt(glm::vec3(0.f, 5.f, 0.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 0.0f, 1.0f));
+		lightView = glm::lookAt(lightPosition, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 0.0f, 0.0f));
 		lightSpaceMatrix = lightProjection * lightView;
 
 		Shader depthShader = Manager::getShader("depth");
@@ -349,42 +408,42 @@ void Game::render(float deltaTime)
 
 		Shader objectShader = Manager::getShader("object");
 		objectShader.use();
-		if (player->isDamaged())
-			objectShader.setVec3("lightColor", glm::vec3(1.f, 0.f, 0.f));
-		else
-			objectShader.setVec3("lightColor", glm::vec3(0.6f));
+		objectShader.setVec3("lightColor", lightColor);
 		objectShader.setMat4("projection", projection);
 		objectShader.setMat4("view", view);
 		objectShader.setVec3("viewPos", position);
-		objectShader.setVec3("lightPos", glm::vec3(0.f, 5.f, 0.f));
+		objectShader.setVec3("lightPos", lightPosition);
 		objectShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 		shadowMap.bindForReading(GL_TEXTURE1);
 
 		Shader projectileShader = Manager::getShader("projectile");
 		projectileShader.use();
-		if (player->isDamaged())
-			projectileShader.setVec3("lightColor", glm::vec3(1.f, 0.f, 0.f));
-		else
-			projectileShader.setVec3("lightColor", glm::vec3(0.6f));
+		projectileShader.setVec3("lightColor",lightColor);
 		projectileShader.setMat4("projection", projection);
 		projectileShader.setMat4("view", view);
 		projectileShader.setVec3("viewPos", position);
-		projectileShader.setVec3("lightPos", glm::vec3(0.f, 5.f, 0.f));
+		projectileShader.setVec3("lightPos", lightPosition);
 		projectileShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 		shadowMap.bindForReading(GL_TEXTURE1);
 
 		this->scene.drawScene(objectShader, aabbDebug);
 
-		// DEBUG FOR SHADOWS
-		// TODO KEY TO ACTIVATE THIS
+		Shader skyboxShader = Manager::getShader("skybox");
+		skyboxShader.use();
+		skyboxShader.setMat4("view", view);
+		skyboxShader.setMat4("projection", projection);
+		skybox.render();
 
-		/*Shader quadShader = Manager::getShader("quad");
-		quadShader.use();
-		quadShader.setFloat("near_plane", shadowMap.near_plane);
-		quadShader.setFloat("far_plane", shadowMap.far_plane);
-		shadowMap.bindForReading(GL_TEXTURE0);
+		if (shadowDebug)
+		{
+			Shader quadShader = Manager::getShader("quad");
+			quadShader.use();
+			quadShader.setFloat("near_plane", shadowMap.near_plane);
+			quadShader.setFloat("far_plane", shadowMap.far_plane);
+			shadowMap.bindForReading(GL_TEXTURE0);
 
-		this->scene.drawQuad();*/
+			this->scene.drawQuad();
+		}
 
 		projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT));
 		Shader guiShader = Manager::getShader("gui");
@@ -395,7 +454,6 @@ void Game::render(float deltaTime)
 		textRenderer->renderText("Mephisto", 890.f, 1000.f, 0.5f, glm::vec3(1.0, 0.0f, 0.0f)); // std::to_string((int)enemy->getLife())
 		textRenderer->renderText("FPS:" + std::to_string((int)ceil(1.0f / deltaTime)), 15.f, 1050.f, 0.35f, glm::vec3(1.0, 0.0f, 0.0f));
 		//textRenderer->renderText("HEALTH: %" + std::to_string((int)player->getLife()), 15.f, 25.f, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-
 	}
 	break;
 	case GAME_WIN:
@@ -418,6 +476,32 @@ void Game::checkCollisions(float deltaTime)
 		if (std::get<0>(playerMeleeCollision))
 		{
 			enemy->decreaseLife(20.f);
+		}
+	}
+
+	// enemy projectiles vs player projectiles
+	Collision ppc;
+	{
+		for (Projectile * p : player->projectiles)
+		{
+			if (p->isAvailable())
+			{
+				for (Projectile * e : enemy->projectiles)
+				{
+					if (e->isAvailable())
+					{
+						ppc = p->currentAABB.intersectAABB(e->currentAABB);
+						if (std::get<0>(ppc))
+						{
+							// might be changed
+							e->collide(p->getVelocity());
+							p->decreaseLife(1.f);
+							//e->decreaseLife(1.f);
+							break;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -606,7 +690,6 @@ void Game::checkCollisions(float deltaTime)
 	}
 	if (intersectedFaces[0] == true || intersectedFaces[1] == true || intersectedFaces[2] == true || intersectedFaces[3] == true || intersectedFaces[4] == true || intersectedFaces[5] == true)
 		player->currentAABB.setCollision(true);
-	//if (enemyHit) enemy->currentAABB.setCollision(true);
 }
 
 bool Game::isTerminated()

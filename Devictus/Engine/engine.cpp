@@ -118,7 +118,19 @@ void Engine::keyAction()
 	if (keys[GLFW_KEY_1])
 		game->processKey(KEY_PAUSE, deltaTime);
 	if (keys[GLFW_KEY_2])
-		game->processKey(KEY_DEBUG, deltaTime);
+		game->processKey(KEY_AABB_DEBUG, deltaTime);
+	if (keys[GLFW_KEY_3])
+		game->processKey(KEY_SHADOW_DEBUG, deltaTime);
+	if (keys[GLFW_KEY_4])
+		game->processKey(KEY_AIM_ASSIST, deltaTime);
+	if (keys[GLFW_KEY_UP])
+		game->processKey(KEY_ARROW_UP, deltaTime);
+	if (keys[GLFW_KEY_DOWN])
+		game->processKey(KEY_ARROW_DOWN, deltaTime);
+	if (keys[GLFW_KEY_LEFT])
+		game->processKey(KEY_ARROW_LEFT, deltaTime);
+	if (keys[GLFW_KEY_RIGHT])
+		game->processKey(KEY_ARROW_RIGHT, deltaTime);
 	if (keys[GLFW_KEY_W])
 		game->processKey(KEY_W, deltaTime);
 	if (keys[GLFW_KEY_S])

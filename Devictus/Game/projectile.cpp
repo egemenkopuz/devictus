@@ -6,6 +6,16 @@ void Projectile::move(float deltaTime)
 
 	if (lifeTime > 0.f) 
 	{
+
+		if (makeTrails)
+		{
+			for (ProjectTrail &t : trails)
+				t.lifeTime -= deltaTime;
+
+			trails.push_back(ProjectTrail(transformMatrix, 10.f* deltaTime));
+		}
+
+
 		if (pType == BULLET || RANDOM)
 		{
 			increasePosition(glm::vec3(xSpeed * deltaTime, ySpeed * deltaTime, zSpeed * deltaTime));
@@ -15,11 +25,15 @@ void Projectile::move(float deltaTime)
 			increasePosition(glm::vec3(0.f, ySpeed * deltaTime, 0.f));
 		}
 	}
-	else available = false;
+	else
+	{
+		trails.clear();
+		available = false;
+	}
 }
 
 Projectile::Projectile(glm::vec3 position, float rotationDegree, glm::vec3 scale, Model * model, 
-	ProjectileType pType, ProjectileEffect pEffect, bool effectEnv, float xSpeed, float ySpeed, float zSpeed)
+	ProjectileType pType, ProjectileEffect pEffect, bool effectEnv, float xSpeed, float ySpeed, float zSpeed, float life)
 {
 	this->type = "projectile";
 	this->transformed = true;
@@ -30,7 +44,7 @@ Projectile::Projectile(glm::vec3 position, float rotationDegree, glm::vec3 scale
 	this->available = true;
 	this->model = model;
 
-	this->lifeTime = 3.f;
+	this->lifeTime = life;
 	this->pType = pType;
 	this->pEffect = pEffect;
 

@@ -27,7 +27,6 @@ public:
 	~Scene();
 
 	void init(LevelDifficulty levelDifficulty, const char *levelPath);
-	//void draw(bool aabbDebug);
 
 	void drawShadowMap(Shader shader);
 	void drawScene(Shader &shader, bool aabbDebug = false);
@@ -47,7 +46,6 @@ public:
 	Model * playerModel;
 	Model * enemyModel;
 private:
-	
 	Model * projectileModel;
 
 	float blockLength;

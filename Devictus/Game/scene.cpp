@@ -309,6 +309,7 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 
 	Shader aabbShader = Manager::getShader("aabb");
 	Shader projectileShader = Manager::getShader("projectile");
+
 	glActiveTexture(GL_TEXTURE0);
 
 	for (auto iter : sceneGraph)
@@ -387,6 +388,19 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 				aabbShader.setMat4("model", iter->getAABBTransform());
 				iter->drawAABB(aabbShader);
 			}
+
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			for (ProjectTrail trail : iter->trails)
+			{
+				if (trail.lifeTime > 0.f)
+				{
+					objectTexture.bind();
+					shader.use();
+					shader.setMat4("model", trail.model);
+					iter->drawModel(shader);
+				}
+			}
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 	}
 
@@ -409,7 +423,7 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 			shader.setMat4("model", player->getTransform());
 			player->drawModel(shader);
 		}
-
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		for (Trail * trail : player->trails)
 		{
 			objectTexture.bind();
@@ -417,6 +431,7 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 			shader.setMat4("model", trail->model);
 			player->drawModel(shader);
 		}
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		if (aabbDebug)
 		{
@@ -463,6 +478,7 @@ void Scene::drawGUI(Shader &shader)
 	// PLAYER HEALTH BAR
 	
 	unsigned int currentBarCount = (int)ceil(player->getLife() / 5.f);
+	if (currentBarCount < 0) currentBarCount = 0;
 	unsigned int damagedBarCount = (int)floor((100.f - player->getLife()) / 5.f);
 
 	x = (WINDOW_WIDTH / 7) - 15 * 15;
@@ -488,6 +504,7 @@ void Scene::drawGUI(Shader &shader)
 	// PLAYER STAMINA BAR
 
 	currentBarCount = (int)ceil(player->getStamina() / 5.f);
+	if (currentBarCount < 0) currentBarCount = 0;
 	damagedBarCount = (int)floor((100.f - player->getStamina()) / 5.f);
 
 	x = (WINDOW_WIDTH / 7) - 15 * 15;
@@ -514,6 +531,7 @@ void Scene::drawGUI(Shader &shader)
 	// ENEMY HEALTH BAR
 
 	currentBarCount = (int)ceil(enemy->getLife() / 5.f);
+	if (currentBarCount < 0) currentBarCount = 0;
 	damagedBarCount = (int)floor((100.f - enemy->getLife()) / 5.f);
 
 	x = (WINDOW_WIDTH / 2) - 30 * 10;
@@ -534,12 +552,6 @@ void Scene::drawGUI(Shader &shader)
 
 		drawQuad();
 	}
-	
-	// DASH
-
-	// RANGED ATTACK
-
-	// MELEE ATTACK
 }
 
 void Scene::drawQuad()
@@ -700,4 +712,3 @@ LevelInfo Scene::readLevelFromFile(const char * levelPath)
 
 	return info;
 }
-

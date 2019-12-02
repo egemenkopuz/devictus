@@ -2,8 +2,8 @@
 #include "../Engine/manager.h"
 #include "../Engine/text.h"
 #include "../Engine/particle.h"
-
 #include "../Engine/shadow.h"
+#include "../Engine/skybox.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,7 +31,13 @@ public:
 	bool isTerminated();
 
 	bool aabbDebug = false;
+	bool shadowDebug = false;
 private:
+	Skybox skybox;
+
+	glm::vec3 lightColor;
+	glm::vec3 lightPosition = glm::vec3(0.f, 5.f, 0.f);
+
 	Camera * freeCamera;
 	Camera3rdPerson * playerCamera;
 	Player * player;

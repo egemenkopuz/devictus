@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <ctime>
 
-
 class Enemy : public GameObject {
 private:
 	float health;
@@ -26,8 +25,16 @@ private:
 	bool firstInit = true;
 	int cons = 0;
 
-	bool checkPhase();
+	int phase = 1;
+
+	void phase1(float deltaTime);
+	void phase2(float deltaTime);
+	void phase3(float deltaTime);
+	void phase4(float deltaTime);
+
 public:
+	int getPhase() { return phase; }
+
 	std::vector<Projectile*> projectiles;
 	void attachProjectileModel(Model * model);
 
