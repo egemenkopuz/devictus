@@ -13,17 +13,18 @@ struct ProjectTrail {
 enum ProjectileType {
 	BULLET,
 	AOE,
-	RANDOM,
-	SCISSOR,
+	SPIRAL,
+	SPIRAL_MAX,
 	HOMING,
-
-	// TODO MAYBE RAY, help from 3rdperson camera
+	RAY,
+	BOMB
 };
 
 enum ProjectileEffect {
 	ATTACKER, 
 	PUSHER, 
 	PULLER,
+	FATAL,
 };
 
 class Projectile : public GameObject {
@@ -35,6 +36,7 @@ private:
 	float lifeTime;
 
 	bool envReactive;
+	bool canBeDestroyedByPlayer = true;
 
 	ProjectileType pType;
 	ProjectileEffect pEffect;
@@ -43,6 +45,9 @@ private:
 public:
 	std::vector<ProjectTrail> trails;
 	bool makeTrails = false;
+
+	bool destroyableByPlayer() { return canBeDestroyedByPlayer; }
+	void updateDest(bool b) { canBeDestroyedByPlayer = b; }
 
 	void setVelocity(glm::vec3 v) { xSpeed = v.x; ySpeed = v.y; zSpeed = v.z; }
 	glm::vec3 getVelocity() { return glm::vec3(xSpeed, ySpeed, zSpeed); }

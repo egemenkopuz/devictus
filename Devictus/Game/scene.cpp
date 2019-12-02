@@ -350,9 +350,23 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 			if (iter->getEffect() == ATTACKER) red.bind();
 			else if (iter->getEffect() == PULLER) blue.bind();
 			else if (iter->getEffect() == PUSHER) yellow.bind();
+			else if (iter->getEffect() == FATAL) black.bind();
 		
 			projectileShader.setMat4("model", iter->getTransform());
 			iter->drawModel(projectileShader);
+
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			for (ProjectTrail trail : iter->trails)
+			{
+				if (trail.lifeTime > 0.f)
+				{
+					shader.use();
+					shader.setMat4("model", trail.model);
+					iter->drawModel(shader);
+				}
+			}
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 			if (aabbDebug)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -364,6 +378,8 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 				aabbShader.setMat4("model", iter->getAABBTransform());
 				iter->drawAABB(aabbShader);
 			}
+
+			
 		}
 	}
 
@@ -423,15 +439,7 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 			shader.setMat4("model", player->getTransform());
 			player->drawModel(shader);
 		}
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		for (Trail * trail : player->trails)
-		{
-			objectTexture.bind();
-			shader.use();
-			shader.setMat4("model", trail->model);
-			player->drawModel(shader);
-		}
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 
 		if (aabbDebug)
 		{
@@ -444,6 +452,16 @@ void Scene::drawScene(Shader &shader, bool aabbDebug)
 			aabbShader.setMat4("model", player->getAABBTransform());
 			player->drawAABB(aabbShader);
 		}
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		for (Trail * trail : player->trails)
+		{
+			objectTexture.bind();
+			shader.use();
+			shader.setMat4("model", trail->model);
+			player->drawModel(shader);
+		}
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	enemyT.bind();

@@ -283,6 +283,8 @@ void Game::update(float deltaTime)
 				{
 					if ((*iter)->isAvailable())
 					{
+						if ((*iter)->getProjectileType() == HOMING)
+							(*iter)->updateTarget(player->getPosition());
 						(*iter)->move(deltaTime);
 						iter++;
 					}
@@ -318,7 +320,7 @@ void Game::update(float deltaTime)
 			}
 			menuSelectionBarrier = true;
 
-			if (player->isDamaged() || enemy->getPhase() == 4)
+			if (player->isDamaged() || enemy->isExploded())
 				lightColor = glm::vec3(1.f, 0.f, 0.f);
 			else
 				lightColor = glm::vec3(0.6f);
@@ -474,8 +476,8 @@ void Game::checkCollisions(float deltaTime)
 	{
 		Collision playerMeleeCollision = player->currentAABB.intersectAABB(enemy->currentAABB);
 		if (std::get<0>(playerMeleeCollision))
-		{
-			enemy->decreaseLife(20.f);
+		{	
+			enemy->decreaseLifeWithMelee(20.f);
 		}
 	}
 
@@ -515,8 +517,6 @@ void Game::checkCollisions(float deltaTime)
 			if (std::get<0>(enemyProjectileCollision))
 			{
 				projectile->decreaseLife(1.f);
-
-				ProjectileEffect effect = projectile->getEffect();
 				enemy->decreaseLife(2.f);
 			}
 		}
@@ -537,25 +537,37 @@ void Game::checkCollisions(float deltaTime)
 
 					ProjectileType t = projectile->getProjectileType();
 					ProjectileEffect e = projectile->getEffect();
-					if (t == BULLET && e == ATTACKER)
+
+					if (e == FATAL)
 					{
-						player->decreaseLife(20.f);
-					}
-					else if (t == RANDOM && e == ATTACKER)
-					{
-						player->decreaseLife(10.f);
+						player->decreaseLife(80.f);
 					}
 					else if (e == PUSHER)
 					{
 						glm::vec3 diff = -glm::normalize(enemy->getPosition() - player->getPosition());
 						player->push(diff);
-						//player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
+						player->decreaseLife(2.f);
 					}
 					else if (e == PULLER)
 					{
 						glm::vec3 diff = glm::normalize(enemy->getPosition() - player->getPosition());
 						player->pull(diff);
-						//player->increasePosition(glm::vec3(diff.x, 0.f, diff.z));
+						player->decreaseLife(2.f);
+					}
+					else
+					{
+						if (t == BULLET || t == HOMING)
+						{
+							player->decreaseLife(20.f);
+						}
+						else if (t == SPIRAL || t == SPIRAL_MAX)
+						{
+							player->decreaseLife(10.f);
+						}
+						else if (t == AOE)
+						{
+							player->decreaseLife(20.f);
+						}
 					}
 				}
 			}
@@ -582,12 +594,12 @@ void Game::checkCollisions(float deltaTime)
 						float damage;
 						ProjectileType t = projectile->getProjectileType();
 						ProjectileEffect e = projectile->getEffect();
-						if (t == BULLET && e == ATTACKER) damage = 50.f;
-						else if (t == AOE) damage = 100.f;
-						else if (t == RANDOM && e == ATTACKER) damage = 2.f;
-						else damage = 0.f;
+						if ((t == BULLET || t== HOMING)&& e == ATTACKER) damage = 50.f;
+						else if (t == AOE || BOMB) damage = 100.f;
+						else if ((t == SPIRAL ||t == SPIRAL_MAX) && e == ATTACKER) damage = 2.f;
+						else damage = 2.5f;
 
-						projectile->decreaseLife(1.f);
+						if (t != BOMB) projectile->decreaseLife(1.f);
 						if (!block->decreaseLife(damage)) flag0 = false;
 					}
 				}
@@ -605,7 +617,7 @@ void Game::checkCollisions(float deltaTime)
 						ProjectileEffect e = projectile->getEffect();
 						if (t == BULLET && e == ATTACKER) damage = 20.f;
 						else if (t == AOE && e == ATTACKER) damage = 10.f;
-						else if (t == RANDOM && e == ATTACKER) damage = 2.f;
+						else if (t == SPIRAL && e == ATTACKER) damage = 2.f;
 						else damage = 0.f;
 
 						projectile->decreaseLife(1.f);

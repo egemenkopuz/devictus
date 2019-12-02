@@ -6,7 +6,6 @@ void Projectile::move(float deltaTime)
 
 	if (lifeTime > 0.f) 
 	{
-
 		if (makeTrails)
 		{
 			for (ProjectTrail &t : trails)
@@ -15,14 +14,29 @@ void Projectile::move(float deltaTime)
 			trails.push_back(ProjectTrail(transformMatrix, 10.f* deltaTime));
 		}
 
-
-		if (pType == BULLET || RANDOM)
+		if (pType == BULLET || pType == SPIRAL || pType == SPIRAL_MAX)
 		{
 			increasePosition(glm::vec3(xSpeed * deltaTime, ySpeed * deltaTime, zSpeed * deltaTime));
 		}
-		else if (pType = AOE)
+		else if (pType == AOE)
 		{
 			increasePosition(glm::vec3(0.f, ySpeed * deltaTime, 0.f));
+		}
+		else if (pType == HOMING)
+		{
+			glm::vec3 diff = glm::normalize(target - position) * deltaTime;
+			increasePosition(glm::vec3(diff.x, diff.y, diff.z));
+		}
+		else if (pType == RAY)
+		{
+			transformed = true;
+		}
+		else if (pType == BOMB)
+		{
+			scale.x += 0.02f;
+			scale.y += 0.1f;
+			scale.z += 0.02f;
+			transformed = true;
 		}
 	}
 	else
