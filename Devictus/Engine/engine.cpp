@@ -123,6 +123,8 @@ void Engine::keyAction()
 		game->processKey(KEY_SHADOW_DEBUG, deltaTime);
 	if (keys[GLFW_KEY_4])
 		game->processKey(KEY_AIM_ASSIST, deltaTime);
+	if (keys[GLFW_KEY_5])
+		game->processKey(KEY_GOD_MODE, deltaTime);
 	if (keys[GLFW_KEY_UP])
 		game->processKey(KEY_ARROW_UP, deltaTime);
 	if (keys[GLFW_KEY_DOWN])

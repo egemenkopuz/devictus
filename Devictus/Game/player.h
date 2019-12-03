@@ -13,6 +13,8 @@ struct Trail {
 
 class Player : public GameObject {
 private:
+	bool godMode = false;
+
 	float health = 100.f;
 	float stamina = 100.f;
 
@@ -59,6 +61,8 @@ private:
 	Model * projectileModel;
 public:
 	std::vector<Trail*> trails;
+
+	void changeGodMode() { godMode = !godMode; }
 
 	bool isOnGround = false;
 	bool aimAssist = false;

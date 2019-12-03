@@ -17,7 +17,8 @@ enum ProjectileType {
 	SPIRAL_MAX,
 	HOMING,
 	RAY,
-	BOMB
+	BOMB,
+	BOMB_R
 };
 
 enum ProjectileEffect {

@@ -38,6 +38,12 @@ void Projectile::move(float deltaTime)
 			scale.z += 0.02f;
 			transformed = true;
 		}
+		else if (pType == BOMB_R)
+		{
+			scale.x += 0.015f;
+			scale.z += 0.015f;
+			transformed = true;
+		}
 	}
 	else
 	{

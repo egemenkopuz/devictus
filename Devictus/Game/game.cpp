@@ -96,6 +96,14 @@ void Game::processKey(KEY key, float deltaTime)
 			menuSelectionBarrier = false;
 			menuSelectionBarrierVal = 15.f * deltaTime;
 		}
+
+		if (key == KEY_GOD_MODE)
+		{
+			if (!menuSelectionBarrier) return;
+			player->changeGodMode();
+			menuSelectionBarrier = false;
+			menuSelectionBarrierVal = 15.f * deltaTime;
+		}
 		
 		if (key == KEY_ARROW_UP)
 		{
@@ -597,9 +605,10 @@ void Game::checkCollisions(float deltaTime)
 						if ((t == BULLET || t== HOMING)&& e == ATTACKER) damage = 50.f;
 						else if (t == AOE || BOMB) damage = 100.f;
 						else if ((t == SPIRAL ||t == SPIRAL_MAX) && e == ATTACKER) damage = 2.f;
+						else if (e == FATAL) damage = 100.f;
 						else damage = 2.5f;
 
-						if (t != BOMB) projectile->decreaseLife(1.f);
+						if (t != BOMB && t != BOMB_R) projectile->decreaseLife(1.f);
 						if (!block->decreaseLife(damage)) flag0 = false;
 					}
 				}

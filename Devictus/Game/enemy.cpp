@@ -618,6 +618,11 @@ void Enemy::phase4(float deltaTime)
 			firstMoveType = 0;
 			invinsible = true;
 			onlyMelee = true;
+
+			Projectile * p = new Projectile(position, 0.f, glm::vec3(0.4f), projectileModel,
+				BOMB_R, FATAL, true, 0.f, 0.f, 0.f, 240.f * deltaTime);
+			p->updateDest(false);
+			projectiles.push_back(p);
 		}
 
 		if (firstMoveInterval < deltaTime)
@@ -645,7 +650,10 @@ void Enemy::phase4(float deltaTime)
 
 		projectiles.push_back(p);
 
-		scale += 0.7f;
+		scale.y += 0.7f;
+		scale.x += 0.3f;
+		scale.z += 0.3f;
+
 		increasePosition(glm::vec3(0.f, 0.5f, 0.f));
 
 		exploded = true;
@@ -657,7 +665,7 @@ void Enemy::phase4(float deltaTime)
 		// MOVE DOWN
 		if (firstMoveType == 2)
 		{
-			firstMoveCount = 60.f;
+			firstMoveCount = 90.f; // was 60.f
 			firstMoveInterval = 0.f;
 			firstMoveType = 3;
 		}
@@ -685,38 +693,52 @@ void Enemy::phase4(float deltaTime)
 		{
 			if (secondMoveType == -1)
 			{
-				secondMoveCount = 10;
+				secondMoveCount = 15;
 				secondMoveInterval = 0.f;
 				secondMoveType = 0;
 
-				double r1 = rand() % 100;
-				double r2 = rand() % 100;
+				/*double r1 = rand() % 100;
+				double r2 = rand() % 100;*/
 
-				ray = glm::normalize(glm::vec3(r1,0.f,r2));
-				ray.y = .5f;
-				//ray = (glm::normalize(glm::vec3(r1, position.y, r2)) - position) * deltaTime;
-				//ray = glm::normalize(player->getPosition() - position) * deltaTime;
+				dX = cos(glfwGetTime()) * 1.f;
+				dZ = sin(glfwGetTime()) * 1.f;
+
+				ray = glm::normalize(glm::vec3(dX, 0.f, dZ));
+
+
+			/*	ray = glm::vec3(1.f, 0.f, 0.f);
+				float theta = glm::dot(glm::normalize(glm::vec3(r1, 0.f, r2)), glm::vec3(1.0f, 0.f, 0.f));
+				ray = glm::rotate(ray, theta, glm::vec3(0.f, 1.f, 0.f));*/
 			}
 
 			if (secondMoveInterval < deltaTime)
 			{
 
-				ray.x += (ray.x * (deltaTime * 2.f));
-				ray.z += (ray.z * (deltaTime * 2.f));
+				for (int i = 0; i < secondMoveCount; i++)
+				{
+					Projectile * p = new Projectile(glm::vec3(ray.x, 0.5f, ray.z), 0.f, glm::vec3(0.3f), projectileModel,
+						RAY, FATAL, true, 0.f, 0.f, 0.f, .2f);
 
-				Projectile * p = new Projectile(ray, 0.f, glm::vec3(0.4f), projectileModel,
-						RAY, FATAL, true, 0.f, 0.f, 0.f, 2.f);
+					Projectile * p2 = new Projectile(glm::vec3(-ray.x, 0.5f, -ray.z), 0.f, glm::vec3(0.3f), projectileModel,
+						RAY, FATAL, true, 0.f, 0.f, 0.f, .2f);
 
-				p->updateDest(false);
+					p->updateDest(false);
+					p2->updateDest(false);
 
-				projectiles.push_back(p);
+					projectiles.push_back(p);
+					projectiles.push_back(p2);
 
-				secondMoveInterval = deltaTime * 10.f;
-				secondMoveCount--;
+					ray.x += ray.x * deltaTime * 5.f;
+					ray.z += ray.z * deltaTime * 5.f;
+					secondMoveCount--;
+				}
+
+				secondMoveInterval = deltaTime * 1.f;
+				
 
 				if (secondMoveCount <= 0)
 				{
-					secondCD = 10.f * deltaTime;
+					secondCD = 0.f * deltaTime;
 					secondMoveType = -1;
 				}
 			}

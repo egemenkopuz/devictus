@@ -50,7 +50,7 @@ private:
 	//bool moveSet[6];
 
 	// current phase
-	int phase = 4;
+	int phase = 1;
 
 	// phase functions
 	void phase1(float deltaTime);

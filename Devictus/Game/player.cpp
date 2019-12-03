@@ -28,7 +28,12 @@ void Player::move(bool keys[], float deltaTime)
 	// jumping
 	if (!jumping) CURRENT_JUMP = 0.f;
 
-	if (keys[MOVE_UP] == true && !jumping && currentAABB.isCollided() && isOnGround == true)
+	if (keys[MOVE_UP] == true && godMode)
+	{
+		currentJumpSpeed = JUMPING_SPEED;
+		jumping = true;
+	}
+	else if (keys[MOVE_UP] == true && !jumping && currentAABB.isCollided() && isOnGround == true)
 	{
 		currentJumpSpeed = JUMPING_SPEED;
 		jumping = true;
@@ -196,7 +201,7 @@ void Player::move(bool keys[], float deltaTime)
 
 	increasePosition(glm::vec3(dX, dY, dZ));
 
-	if (position.y < LIMIT)
+	if (position.y < LIMIT && !godMode)
 		available = false;
 }
 
@@ -242,6 +247,7 @@ bool Player::increaseLife(float v)
 
 bool Player::decreaseLife(float v)
 {
+	if (godMode) return true;
 	health -= v;
 	damaged = true;
 	damagedTime = prevDeltaTime * 10.f;
